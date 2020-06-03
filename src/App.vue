@@ -48,11 +48,92 @@
                   <v-btn color="likelyRed" dark class="mb-2" v-on="on">New Room</v-btn>
                 </template>
                 <v-card>
-                  <v-card-title>
-                    <span class="headline">{{ formTitle }}</span>
-                  </v-card-title>
                   <v-card-text>
-                    <v-container>
+                    <v-container id="newRoomdialog">
+                      <v-row>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-menu
+                            v-model="menu"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="290px"
+                          >
+                            <template v-slot:activator="{ on }">
+                              <v-text-field
+                                v-model="date"
+                                label="Date"
+                                readonly
+                                v-on="on"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker no-title scrollable v-model="date" @input="menu = false"></v-date-picker>
+                          </v-menu>
+                        </v-col>
+                        <v-col cols="12" sm="4" md="4">
+                          <v-select
+                            :items="initMotiten"
+                            label="持ち点"
+                          ></v-select>
+                        </v-col>
+                      </v-row>
+                      <v-row>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="editedItem.firstName" label="東家"></v-text-field>
+                        </v-col>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="editedItem.firstScore" label="点数"></v-text-field>
+                        </v-col>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="calcuVar.eastPlus" label="＋"></v-text-field>
+                        </v-col>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="calcuVar.eastMinus" label="-"></v-text-field>
+                        </v-col>
+                      </v-row>
+                      <v-row>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="editedItem.secondName" label="南家"></v-text-field>
+                        </v-col>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="editedItem.secondScore" label="点数"></v-text-field>
+                        </v-col>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="calcuVar.southPlus" label="＋"></v-text-field>
+                        </v-col>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="calcuVar.southMinus" label="-"></v-text-field>
+                        </v-col>
+                      </v-row>
+                      <v-row>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="editedItem.thirdName" label="西家"></v-text-field>
+                        </v-col>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="editedItem.thirdScore" label="点数"></v-text-field>
+                        </v-col>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="calcuVar.westPlus" label="＋"></v-text-field>
+                        </v-col>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="calcuVar.westMinus" label="-"></v-text-field>
+                        </v-col>
+                      </v-row>
+                      <v-row>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="editedItem.fourthName" label="北家"></v-text-field>
+                        </v-col>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="editedItem.fourthScore" label="点数"></v-text-field>
+                        </v-col>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="calcuVar.northPlus" label="＋"></v-text-field>
+                        </v-col>
+                        <v-col cols="1" sm="2" md="2">
+                          <v-text-field v-model="calcuVar.northMinus" label="-"></v-text-field>
+                        </v-col>
+                      </v-row>
                     </v-container>
                   </v-card-text>
                   <v-card-actions>
@@ -151,10 +232,26 @@
 
 export default {
   data: () => ({
+    date: new Date().toISOString().substr(0, 10),
+    menu: false,
     newRoomDialog: false,
     dialog: false,
     editedIndex: -1,
+    initMotiten:[25000, 30000],
+    calcuVar: {
+
+      eastPlus: 0,
+      eastMinus: 0,
+      southPlus: 0,
+      southMinus: 0,
+      westPlus: 0,
+      westMinus: 0,
+      northPlus: 0,
+      northMinus: 0
+
+    },
     editedItem: {
+        motiten: 25000,
         battleNo: 0,
         ymd: '',
         firstName: '',
@@ -162,7 +259,7 @@ export default {
         secondName: '',
         secondScore: 0,
         thirdName: '',
-        thirdScore: '',
+        thirdScore: 0,
         fourthName: '',
         fourthScore: 0
     },
@@ -174,14 +271,14 @@ export default {
         secondName: '',
         secondScore: 0,
         thirdName: '',
-        thirdScore: '',
+        thirdScore: 0,
         fourthName: '',
         fourthScore: 0
     },
     singleSelect: false,
     drawer: true,
     nav_lists:[
-      {name: 'Make New Room', icon: 'mdi-folder-plus'},
+      {name: 'Manage Room', icon: 'mdi-folder-plus'},
       {name: 'Record Score', icon: 'mdi-brush'}
     ],
     headers: [
@@ -277,12 +374,6 @@ export default {
       },
     ],
   }),
-
-  computed: {
-    formTitle () {
-      return this.editedIndex === -1 ? 'Make New Room' : ''
-    },
-  },
 
   methods: {
 
