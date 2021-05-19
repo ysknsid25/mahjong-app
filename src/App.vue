@@ -513,9 +513,43 @@
     <!-- プロフィールコンポーネント -->
     <v-divider></v-divider>
     <Profile></Profile>
-    <!-- ダッシュボード -->
+    <!-- レーダーチャート -->
     <v-divider></v-divider>
-    <DashBoard></DashBoard>
+    <v-container>
+      <v-row dense justify="center">
+        <v-col xs="12" md="12">
+          <v-card height="15em">
+            <v-card-title class="text-h5">
+              <v-icon class="mr-2">fas fa-chart-line</v-icon>
+              直近10局の成績
+            </v-card-title>
+            <v-card-text> </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col xs="12" md="6">
+          <v-card height="30em">
+            <v-card-title class="text-h5">
+              <v-icon class="mr-2">far fa-chart-bar</v-icon>
+              直近10局のスタイル
+            </v-card-title>
+            <v-card-text>
+              <RaderChart></RaderChart>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col xs="12" md="6">
+          <v-card height="30em">
+            <v-card-title class="text-h5">
+              <v-icon class="mr-2">fas fa-chart-line</v-icon>
+              直近10局の順位
+            </v-card-title>
+            <v-card-text>
+              <LineChart></LineChart>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-app>
 </template>
 
@@ -524,7 +558,8 @@ import HanKeisan from "./components/HanKeisan";
 import HuKeisan from "./components/HuKeisan";
 import Tenpai from "./components/Tenpai";
 import Profile from "./components/Profile";
-import DashBoard from "./components/DashBoard";
+import RaderChart from "./components/RaderChart";
+import LineChart from "./components/LineChart";
 
 export default {
   name: "App",
@@ -534,7 +569,8 @@ export default {
     HuKeisan,
     Tenpai,
     Profile,
-    DashBoard,
+    RaderChart,
+    LineChart,
   },
 
   data: () => ({
