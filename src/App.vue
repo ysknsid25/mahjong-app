@@ -150,6 +150,7 @@
           </template>
         </v-data-table>
       </div>
+      <!-- 得点計算コンポーネント -->
       <div v-show="playingRoom">
         <v-dialog v-model="huKeisanDialog" max-width="800">
           <HuKeisan @close-from-Hukeisan="refreshHuCalcResult"></HuKeisan>
@@ -167,236 +168,354 @@
           >
           </Tenpai>
         </v-dialog>
-        <v-row justify="center">
-          <v-col cols="1" sm="1" md="1">
-            <v-select
-              v-model="oyako"
-              item-text="label"
-              item-value="value"
-              :items="oyakoItems"
-              label="親子"
-              @change="changeOyako"
-            />
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-select
-              v-model="agari"
-              item-text="label"
-              item-value="value"
-              :items="agariItems"
-              label="和了方法"
-              @change="changeAgari"
-            />
-          </v-col>
-          <v-col cols="1" sm="1" md="1" @change="changeHonba">
-            <v-select v-model="honba" :items="honbaItems" label="本場" />
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-chip class="ma-2" color="green" text-color="white">
-              リーチ
-              <v-avatar right class="green darken-4">
-                {{ reachBou }}
-              </v-avatar>
-            </v-chip>
-          </v-col>
-        </v-row>
-        <v-row justify="center">
-          <v-col cols="1" sm="1" md="1">
-            <v-select
-              v-model="han"
-              item-text="label"
-              item-value="value"
-              :items="hanItems"
-              label="翻"
-              @change="changeHan"
-            />
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-btn depressed small color="warning" @click="calcuHan(roomItem)"
-              >翻計算</v-btn
-            >
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-select
-              v-model="hu"
-              :items="huItems"
-              label="符"
-              @change="changeHu"
-            />
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-btn depressed small color="primary" @click="calcuHu(roomItem)"
-              >符計算</v-btn
-            >
-          </v-col>
-        </v-row>
-        <v-row justify="center">
-          <v-col cols="1" sm="1" md="1"></v-col>
-          <v-col cols="1" sm="1" md="1"></v-col>
-          <v-col cols="1" sm="1" md="1"></v-col>
-          <v-col cols="1" sm="1" md="1"></v-col>
-          <v-col cols="2" justify="end">
-            <v-btn
-              class="mx-3"
-              depressed
-              small
-              color="amber lighten-3"
-              @click="calculateTokuten"
-              >計算</v-btn
-            >
-            <v-btn depressed small color="brown lighten-3" @click="ryukyoku"
-              >流局</v-btn
-            >
-            <v-btn class="mx-3" depressed small @click="clearScreen"
-              >クリア</v-btn
-            >
-          </v-col>
-        </v-row>
-        <v-row justify="center">
-          <v-col cols="6" sm="4" md="4" class="font-weight-thin headline">
-            {{ tokuten }}
-          </v-col>
-        </v-row>
-        <v-divider></v-divider>
-        <v-row justify="center">
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field
-              v-model="roomItem.firstName"
-              readonly
-              label="東家"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field
-              v-model="roomItem.firstScore"
-              label="点数"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field v-model="calcuVar.eastPlus" label="＋"></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field v-model="calcuVar.eastMinus" label="-"></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-btn rounded small color="red" dark @click="reach(roomItem, '1')"
-              >リーチ</v-btn
-            >
-          </v-col>
-        </v-row>
-        <v-row justify="center">
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field
-              v-model="roomItem.secondName"
-              readonly
-              label="南家"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field
-              v-model="roomItem.secondScore"
-              label="点数"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field
-              v-model="calcuVar.southPlus"
-              label="＋"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field
-              v-model="calcuVar.southMinus"
-              label="-"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-btn rounded small color="red" dark @click="reach(roomItem, '2')"
-              >リーチ</v-btn
-            >
-          </v-col>
-        </v-row>
-        <v-row justify="center">
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field
-              v-model="roomItem.thirdName"
-              readonly
-              label="西家"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field
-              v-model="roomItem.thirdScore"
-              label="点数"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field v-model="calcuVar.westPlus" label="＋"></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field v-model="calcuVar.westMinus" label="-"></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-btn rounded small color="red" dark @click="reach(roomItem, '3')"
-              >リーチ</v-btn
-            >
-          </v-col>
-        </v-row>
-        <v-row justify="center">
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field
-              v-model="roomItem.fourthName"
-              readonly
-              label="北家"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field
-              v-model="roomItem.fourthScore"
-              label="点数"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field
-              v-model="calcuVar.northPlus"
-              label="＋"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-text-field
-              v-model="calcuVar.northMinus"
-              label="-"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-btn rounded small color="red" dark @click="reach(roomItem, '4')"
-              >リーチ</v-btn
-            >
-          </v-col>
-        </v-row>
-        <v-row justify="center">
-          <v-col cols="1" sm="1" md="1">
-            <v-btn
-              tile
-              color="indigo"
-              dark
-              @click="liquidation(roomItem, calcuVar)"
-              >清算</v-btn
-            >
-          </v-col>
-        </v-row>
-        <v-row justify="center">
-          <v-col cols="1" sm="1" md="1">
-            <v-btn text color="blue darken-1" @click="exitRoom">Exit</v-btn>
-          </v-col>
-          <v-col cols="1" sm="1" md="1">
-            <v-btn text color="blue darken-1" @click="saveBattleResult"
-              >Save</v-btn
-            >
-          </v-col>
-        </v-row>
+        <v-container>
+          <v-row justify="center">
+            <v-col offset="2"></v-col>
+            <v-col>
+              <v-select
+                v-model="oyako"
+                item-text="label"
+                item-value="value"
+                :items="oyakoItems"
+                label="親子"
+                @change="changeOyako"
+              />
+            </v-col>
+            <v-col>
+              <v-select
+                v-model="agari"
+                item-text="label"
+                item-value="value"
+                :items="agariItems"
+                label="和了方法"
+                @change="changeAgari"
+              />
+            </v-col>
+            <v-col offset="2"></v-col>
+          </v-row>
+          <v-row justify="center">
+            <v-col offset="2"></v-col>
+            <v-col>
+              <v-select
+                v-model="han"
+                item-text="label"
+                item-value="value"
+                :items="hanItems"
+                label="翻"
+                @change="changeHan"
+              />
+            </v-col>
+            <v-col>
+              <v-select
+                v-model="hu"
+                :items="huItems"
+                label="符"
+                @change="changeHu"
+              />
+            </v-col>
+            <v-col offset="2"></v-col>
+          </v-row>
+          <v-row justify="center">
+            <v-col offset="2"></v-col>
+            <v-col>
+              <v-select item-value="Daniel" label="和了者" />
+            </v-col>
+            <v-col>
+              <v-select item-value="全員" label="支払人" />
+            </v-col>
+            <v-col offset="2"></v-col>
+          </v-row>
+          <v-row justify="center">
+            <v-col>
+              <div align="center">
+                <v-btn
+                  tile
+                  color="indigo"
+                  dark
+                  outlined
+                  class="mr-2"
+                  width="100"
+                  @click="calcuHan(roomItem)"
+                  >翻計算</v-btn
+                >
+                <v-btn
+                  tile
+                  color="indigo"
+                  dark
+                  outlined
+                  width="100"
+                  @click="calcuHu(roomItem)"
+                  >符計算</v-btn
+                >
+              </div>
+            </v-col>
+          </v-row>
+          <v-row justify="center">
+            <v-col>
+              <div align="center">
+                <v-btn
+                  tile
+                  color="indigo"
+                  dark
+                  class="mr-2"
+                  width="100"
+                  @click="ryukyoku"
+                  >流局</v-btn
+                >
+                <v-btn
+                  tile
+                  color="indigo"
+                  dark
+                  width="100"
+                  @click="calculateTokuten"
+                  >得点計算</v-btn
+                >
+              </div>
+            </v-col>
+          </v-row>
+          <v-row justify="center">
+            <v-col cols="6" sm="4" md="4" class="font-weight-thin headline">
+              <div align="center">
+                {{ tokuten }}
+              </div>
+            </v-col>
+          </v-row>
+          <!-- 得点状況コンポーネント -->
+          <v-divider></v-divider>
+          <v-row justify="center">
+            <v-col>
+              <v-select
+                v-model="ba"
+                item-text="label"
+                item-value="value"
+                :items="baItems"
+                label="場"
+                @change="changeOyako"
+              />
+            </v-col>
+            <v-col>
+              <v-select v-model="kyoku" :items="kyokuItems" label="局" />
+            </v-col>
+            <v-col @change="changeHonba">
+              <v-select v-model="honba" :items="honbaItems" label="本場" />
+            </v-col>
+            <v-col>
+              <div align="center">
+                <v-chip
+                  class="ma-2"
+                  color="green"
+                  text-color="white"
+                  justify="center"
+                  align-content="center"
+                >
+                  リーチ
+                  <v-avatar right class="green darken-4">
+                    {{ reachBou }}
+                  </v-avatar>
+                </v-chip>
+              </div>
+            </v-col>
+          </v-row>
+          <v-row justify="center">
+            <v-col>
+              <v-text-field
+                v-model="roomItem.firstName"
+                readonly
+                label="東家"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="roomItem.firstScore"
+                label="点数"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="calcuVar.eastPlus"
+                label="＋"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="calcuVar.eastMinus"
+                label="-"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <div align="center">
+                <v-btn
+                  rounded
+                  small
+                  color="red"
+                  dark
+                  @click="reach(roomItem, '1')"
+                  >リーチ</v-btn
+                >
+              </div>
+            </v-col>
+          </v-row>
+          <v-row justify="center">
+            <v-col>
+              <v-text-field
+                v-model="roomItem.secondName"
+                readonly
+                label="南家"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="roomItem.secondScore"
+                label="点数"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="calcuVar.southPlus"
+                label="＋"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="calcuVar.southMinus"
+                label="-"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <div align="center">
+                <v-btn
+                  rounded
+                  small
+                  color="red"
+                  dark
+                  @click="reach(roomItem, '2')"
+                  >リーチ</v-btn
+                >
+              </div>
+            </v-col>
+          </v-row>
+          <v-row justify="center">
+            <v-col>
+              <v-text-field
+                v-model="roomItem.thirdName"
+                readonly
+                label="西家"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="roomItem.thirdScore"
+                label="点数"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="calcuVar.westPlus"
+                label="＋"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="calcuVar.westMinus"
+                label="-"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <div align="center">
+                <v-btn
+                  rounded
+                  small
+                  color="red"
+                  dark
+                  @click="reach(roomItem, '3')"
+                  >リーチ</v-btn
+                >
+              </div>
+            </v-col>
+          </v-row>
+          <v-row justify="center">
+            <v-col>
+              <v-text-field
+                v-model="roomItem.fourthName"
+                readonly
+                label="北家"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="roomItem.fourthScore"
+                label="点数"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="calcuVar.northPlus"
+                label="＋"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="calcuVar.northMinus"
+                label="-"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <div align="center">
+                <v-btn
+                  rounded
+                  small
+                  color="red"
+                  dark
+                  @click="reach(roomItem, '4')"
+                  >リーチ</v-btn
+                >
+              </div>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <div align="center">
+                <v-btn
+                  tile
+                  color="red"
+                  dark
+                  width="100"
+                  outlined
+                  @click="liquidation(roomItem, calcuVar)"
+                  >清算</v-btn
+                >
+              </div>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <div align="center">
+                <v-btn text block color="blue darken-1" @click="exitRoom"
+                  >Exit</v-btn
+                >
+              </div>
+            </v-col>
+            <v-col>
+              <div align="center">
+                <v-btn
+                  text
+                  block
+                  color="blue darken-1"
+                  @click="saveBattleResult"
+                  >Save</v-btn
+                >
+              </div>
+            </v-col>
+          </v-row>
+        </v-container>
       </div>
     </v-content>
+    <!-- プロフィールコンポーネント -->
+    <v-divider></v-divider>
+    <Profile></Profile>
+    <!-- ダッシュボード -->
+    <v-divider></v-divider>
+    <DashBoard></DashBoard>
   </v-app>
 </template>
 
@@ -404,6 +523,8 @@
 import HanKeisan from "./components/HanKeisan";
 import HuKeisan from "./components/HuKeisan";
 import Tenpai from "./components/Tenpai";
+import Profile from "./components/Profile";
+import DashBoard from "./components/DashBoard";
 
 export default {
   name: "App",
@@ -412,6 +533,8 @@ export default {
     HanKeisan,
     HuKeisan,
     Tenpai,
+    Profile,
+    DashBoard,
   },
 
   data: () => ({
@@ -575,8 +698,10 @@ export default {
     honba: "",
     oyako: "0",
     agari: "0",
+    ba: 0,
     hu: 20,
     han: "1",
+    kyoku: "1",
     roomItemIndex: -1,
     oyakoItems: [
       { label: "親", value: "0" },
@@ -609,6 +734,13 @@ export default {
       northPlus: 0,
       northMinus: 0,
     },
+    baItems: [
+      { label: "東", value: 0 },
+      { label: "南", value: 1 },
+      { label: "西", value: 2 },
+      { label: "北", value: 3 },
+    ],
+    kyokuItems: ["1", "2", "3", "4"],
   }),
 
   methods: {
