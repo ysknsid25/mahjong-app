@@ -4,7 +4,7 @@
     "display": "standalone",
     "scope": "/",
     "start_url": "/",
-    "name": "MahjongScoreManager",
+    "name": "Mahjonager",
     "short_name": "MSM",
     "icons": [
         {
