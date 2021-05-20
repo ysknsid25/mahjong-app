@@ -7,13 +7,10 @@
           src="https://cdn.pixabay.com/photo/2020/07/12/07/47/bee-5396362_1280.jpg"
         >
           <v-app-bar flat color="rgba(0, 0, 0, 0)">
-            <v-btn text icon :href="tweetUrl" target="_blank">
-              <v-icon color="#1DA1F2">fab fa-twitter-square</v-icon>
-            </v-btn>
             <v-spacer></v-spacer>
 
             <v-btn color="white" icon>
-              <v-icon>mdi-dots-vertical</v-icon>
+              <v-icon>fas fa-edit</v-icon>
             </v-btn>
           </v-app-bar>
 
@@ -70,9 +67,9 @@ export default {
         color: "indigo",
       },
       {
-        title: "2nd",
+        title: "logined",
         time: "2021/05/18 23:20",
-        message: "Taro, Jiro, Monta",
+        message: "",
         color: "red",
       },
       {
@@ -88,22 +85,8 @@ export default {
         color: "indigo",
       },
     ],
-    tweetUrl: "",
   }),
 
-  mounted: function () {
-    this.createTweetUrl();
-  },
-
-  methods: {
-    createTweetUrl() {
-      const twitterUtl = "https://twitter.com/intent/tweet?";
-      const url = encodeURIComponent(location.href);
-      const tweet = "テストtweetだお";
-      const hashTags = "麻雀成績管理";
-      this.tweetUrl =
-        twitterUtl + "text=" + tweet + "&hashtags=" + hashTags + "&url=" + url;
-    },
-  },
+  methods: {},
 };
 </script>
