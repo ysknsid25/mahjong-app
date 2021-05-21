@@ -2,25 +2,14 @@
   <v-container>
     <v-row justify="space-around">
       <v-card width="400">
-        <v-img
-          height="200px"
-          src="https://cdn.pixabay.com/photo/2020/07/12/07/47/bee-5396362_1280.jpg"
-        >
-          <v-app-bar flat color="rgba(0, 0, 0, 0)">
-            <v-spacer></v-spacer>
-
-            <v-btn color="white" icon>
-              <v-icon>fas fa-edit</v-icon>
-            </v-btn>
-          </v-app-bar>
-
-          <v-card-title class="white--text mt-8">
+        <div height="300px">
+          <v-card-title class="secondary white--text">
             <v-avatar size="56">
               <img alt="user" v-bind:src="userInfo.imgPath" />
             </v-avatar>
-            <p class="ml-3">{{ userInfo.name }}</p>
+            <p class="ml-3 mt-3">{{ userInfo.name }}</p>
           </v-card-title>
-        </v-img>
+        </div>
 
         <v-card-text>
           <div class="font-weight-bold ml-8 mb-2">History</div>

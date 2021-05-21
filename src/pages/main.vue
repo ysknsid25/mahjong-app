@@ -23,6 +23,9 @@
     <v-app-bar color="secondary" dark app clipped-left>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Mahjanager</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <Subscriber></Subscriber>
+      <Notify></Notify>
     </v-app-bar>
     <v-container class="mt-6">
       <div class="mt-10" v-show="roomTable">
@@ -607,6 +610,8 @@ import Tenpai from "../components/Tenpai";
 import Profile from "../components/Profile";
 import RaderChart from "../components/RaderChart";
 import LineChart from "../components/LineChart";
+import Subscriber from "../components/Subscriber";
+import Notify from "../components/Notify";
 
 export default {
   name: "Main",
@@ -618,6 +623,8 @@ export default {
     Profile,
     RaderChart,
     LineChart,
+    Subscriber,
+    Notify,
   },
 
   data: () => ({
