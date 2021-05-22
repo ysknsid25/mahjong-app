@@ -5,7 +5,7 @@ export const menulist = [
         name: "DashBoard",
         icon: "fas fa-chart-line",
         iconColor: "#191970",
-        url: "Main",
+        url: "/",
     },
     {
         name: "Record Score",
