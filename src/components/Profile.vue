@@ -12,23 +12,33 @@
         </div>
 
         <v-card-text>
-          <div class="font-weight-bold ml-8 mb-2">History</div>
-
-          <v-timeline align-top dense>
-            <v-timeline-item
-              v-for="history in histories"
-              :key="history.time"
-              :color="history.color"
-              small
-            >
-              <div>
-                <div class="font-weight-normal">
-                  <strong>{{ history.title }}</strong> @{{ history.time }}
+          <div align="center" v-if="loading">
+            <v-progress-circular
+              v-if="loading"
+              :size="50"
+              color="secondary"
+              dark
+              indeterminate
+            ></v-progress-circular>
+          </div>
+          <div v-if="!loading">
+            <div class="font-weight-bold ml-8 mb-2">History</div>
+            <v-timeline align-top dense>
+              <v-timeline-item
+                v-for="history in histories"
+                :key="history.time"
+                :color="history.color"
+                small
+              >
+                <div>
+                  <div class="font-weight-normal">
+                    <strong>{{ history.title }}</strong> @{{ history.time }}
+                  </div>
+                  <div>{{ history.message }}</div>
                 </div>
-                <div>{{ history.message }}</div>
-              </div>
-            </v-timeline-item>
-          </v-timeline>
+              </v-timeline-item>
+            </v-timeline>
+          </div>
         </v-card-text>
       </v-card>
     </v-row>
@@ -40,6 +50,7 @@ export default {
   name: "Profile",
 
   data: () => ({
+    loading: false,
     userInfo: {
       name: "Daniel Kanemitsu",
       userId: "cabbage-5337431_1280",

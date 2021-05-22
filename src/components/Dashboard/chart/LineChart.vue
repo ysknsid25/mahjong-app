@@ -3,14 +3,20 @@ import { Line } from "vue-chartjs";
 
 export default {
   extends: Line,
+  props: ["label", "labels", "datas"],
+  data: () => ({
+    label: "",
+    labels: "",
+    datas: "",
+  }),
   mounted() {
     this.renderChart(
       {
-        labels: ["", "", "", "", "", "", "", "", "", ""],
+        labels: this.labels,
         datasets: [
           {
-            label: "順位",
-            data: [1, 1, 2, 4, 3, 3, 4, 2, 1, 4],
+            label: this.label,
+            data: this.datas,
             backgroundColor: "transparent",
             borderColor: "rgba(1, 116, 188, 0.50)",
             pointBackgroundColor: "rgba(171, 71, 188, 1)",

@@ -1,32 +1,6 @@
 <template>
   <v-app>
-    <v-navigation-drawer app v-model="drawer" clipped>
-      <v-container>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title class="title"> What to do? </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-divider></v-divider>
-        <v-list dense nav>
-          <v-list-item v-for="nav_list in nav_lists" :key="nav_list.name">
-            <v-list-item-icon>
-              <v-icon :color="nav_list.iconColor">{{ nav_list.icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>{{ nav_list.name }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </v-container>
-    </v-navigation-drawer>
-    <v-app-bar color="secondary" dark app clipped-left>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>Mahjanager</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <Subscriber></Subscriber>
-      <Notify></Notify>
-    </v-app-bar>
+    <NavigationDrawer></NavigationDrawer>
     <v-container class="mt-6">
       <div class="mt-10" v-show="roomTable">
         <v-data-table
@@ -518,113 +492,32 @@
     <v-container>
       <Profile></Profile>
     </v-container>
-    <!-- レーダーチャート -->
     <v-divider></v-divider>
-    <v-container>
-      <v-row dense justify="center">
-        <v-col xs="12" md="12">
-          <v-card height="13em">
-            <v-card-title class="text-h5">
-              <v-icon class="mr-2">fas fa-th</v-icon>
-              直近10局の成績
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-card-text>
-              <v-simple-table fixed-header>
-                <thead>
-                  <tr>
-                    <th class="text-center">平均得点</th>
-                    <th class="text-center">和了率</th>
-                    <th class="text-center">ツモ率</th>
-                    <th class="text-center">放銃率</th>
-                    <th class="text-center">立直率</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="text-center">6390</td>
-                    <td class="text-center">22.4%</td>
-                    <td class="text-center">17.5%</td>
-                    <td class="text-center">11.2%</td>
-                    <td class="text-center">10.3%</td>
-                  </tr>
-                </tbody>
-              </v-simple-table>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col xs="12" md="6">
-          <v-card height="30em">
-            <v-card-title class="text-h5">
-              <v-icon class="mr-2">far fa-caret-square-up</v-icon>
-              直近10局のスタイル
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-card-text>
-              <RaderChart></RaderChart>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col xs="12" md="6">
-          <v-card height="30em">
-            <v-card-title class="text-h5">
-              <v-icon class="mr-2">fas fa-trophy</v-icon>
-              直近10局の順位
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-card-text>
-              <LineChart></LineChart>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+    <Dashboard></Dashboard>
     <v-divider></v-divider>
-    <v-container>
-      <v-card elevation="2">
-        <v-card-title> FeedBack </v-card-title>
-        <v-card-subtitle>
-          よろしければFeedBackをお送りください。
-        </v-card-subtitle>
-        <v-card-text>
-          <v-textarea outlined value=""></v-textarea>
-          <div align="right">
-            <v-btn
-              tile
-              color="secondary"
-              dark
-              width="100"
-              @click="liquidation(roomItem, calcuVar)"
-              >送信</v-btn
-            >
-          </div>
-        </v-card-text>
-      </v-card>
-    </v-container>
+    <Feedback></Feedback>
   </v-app>
 </template>
 <script>
+import NavigationDrawer from "../components/navigation/NavigationDrawer";
 import HanKeisan from "../components/HanKeisan";
 import HuKeisan from "../components/HuKeisan";
 import Tenpai from "../components/Tenpai";
 import Profile from "../components/Profile";
-import RaderChart from "../components/RaderChart";
-import LineChart from "../components/LineChart";
-import Subscriber from "../components/Subscriber";
-import Notify from "../components/Notify";
+import Feedback from "../pages/Feedback";
+import Dashboard from "../pages/Dashboard";
 
 export default {
   name: "Main",
 
   components: {
+    NavigationDrawer,
     HanKeisan,
     HuKeisan,
     Tenpai,
     Profile,
-    RaderChart,
-    LineChart,
-    Subscriber,
-    Notify,
+    Feedback,
+    Dashboard,
   },
 
   data: () => ({
@@ -685,27 +578,6 @@ export default {
     },
     singleSelect: false,
     drawer: false,
-    nav_lists: [
-      { name: "Profile", icon: "fas fa-user-circle", iconColor: "#191970" },
-      { name: "DashBoard", icon: "fas fa-chart-line", iconColor: "#191970" },
-      { name: "Record Score", icon: "mdi-brush", iconColor: "#ff0000" },
-      { name: "Share Tweet", icon: "fab fa-twitter", iconColor: "#1DA1F2" }, //リンクはtweetUrlから取得する
-      {
-        name: "Release Note",
-        icon: "fas fa-sticky-note",
-        iconColor: "#228b22",
-      },
-      {
-        name: "Feedback",
-        icon: "fas fa-comment-dots",
-        iconColor: "#191970",
-      },
-      {
-        name: "Logout",
-        icon: "fas fa-sign-out-alt",
-        iconColor: "#191970",
-      },
-    ],
     headers: [
       {
         text: "No",

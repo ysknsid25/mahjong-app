@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" width="500">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn color="white" icon v-bind="attrs" v-on="on">
+      <v-btn color="secondary" dark icon v-bind="attrs" v-on="on">
         <v-icon>fas fa-bell</v-icon>
       </v-btn>
       <v-btn color="red" icon v-bind="attrs" v-on="on">

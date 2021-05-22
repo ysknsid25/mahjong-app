@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" width="500">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn color="white" icon class="mr-2" v-bind="attrs" v-on="on">
+      <v-btn color="secondary" dark icon class="mr-2" v-bind="attrs" v-on="on">
         <v-icon>far fa-envelope</v-icon>
       </v-btn>
     </template>
@@ -38,7 +38,13 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn tile color="secondary" dark width="100" @click="dialog = false"
+        <v-btn
+          outlined
+          tile
+          color="secondary"
+          dark
+          width="100"
+          @click="dialog = false"
           >送信</v-btn
         >
       </v-card-actions>
@@ -46,20 +52,12 @@
   </v-dialog>
 </template>
 <script>
+import { infoTypeKbn } from "../constants/kbn";
 export default {
   name: "Subscriber",
   data: () => ({
     dialog: false,
-    notifyType: [
-      {
-        label: "リリース情報",
-        value: "0",
-      },
-      {
-        label: "障害情報",
-        value: "1",
-      },
-    ],
+    notifyType: infoTypeKbn,
   }),
 };
 </script>
