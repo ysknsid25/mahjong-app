@@ -1,7 +1,15 @@
 <template>
   <v-dialog v-model="dialog" width="500">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn color="secondary" dark icon class="mr-2" v-bind="attrs" v-on="on">
+      <v-btn
+        color="secondary"
+        dark
+        icon
+        v-if="isAdmin"
+        class="mr-2"
+        v-bind="attrs"
+        v-on="on"
+      >
         <v-icon>far fa-envelope</v-icon>
       </v-btn>
     </template>
@@ -56,6 +64,7 @@ import { infoTypeKbn } from "../constants/kbn";
 export default {
   name: "Subscriber",
   data: () => ({
+    isAdmin: true,
     dialog: false,
     notifyType: infoTypeKbn,
   }),

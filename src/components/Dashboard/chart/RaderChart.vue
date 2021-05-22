@@ -4,11 +4,6 @@ import { Radar } from "vue-chartjs";
 export default {
   extends: Radar,
   props: ["labels", "datas", "whatIndicate"],
-  data: () => ({
-    labels: "",
-    datas: "",
-    whatIndicate: "",
-  }),
   mounted() {
     this.renderChart(
       {

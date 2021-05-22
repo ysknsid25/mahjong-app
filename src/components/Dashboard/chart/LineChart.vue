@@ -4,11 +4,6 @@ import { Line } from "vue-chartjs";
 export default {
   extends: Line,
   props: ["label", "labels", "datas"],
-  data: () => ({
-    label: "",
-    labels: "",
-    datas: "",
-  }),
   mounted() {
     this.renderChart(
       {
