@@ -4,3 +4,5 @@ dist
 
 .firebaserc
 firebase.json
+.firebase
+doc

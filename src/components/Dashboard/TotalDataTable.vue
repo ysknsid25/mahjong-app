@@ -48,7 +48,7 @@ export default {
     loading: false,
     title: "直近10局の成績",
     tblHeadList: recentlyScoreTblHeadList,
-    scoreList: ["6390", "22.4%", "17.5%", "11.2%", "10.3%"],
+    scoreList: ["6390", "22.4%", "11.2%", "10.3%"],
   }),
 };
 </script>

@@ -9,10 +9,10 @@
     <v-dialog v-model="tenpaiDialog" max-width="800">
       <Tenpai
         @close-from-Tenpai="refreshTenpaiCalcResult"
-        :tontyaWho="roomItem.firstName"
-        :nantyaWho="roomItem.secondName"
-        :syatyaWho="roomItem.thirdName"
-        :petyaWho="roomItem.fourthName"
+        :tontyaWho="editItem.firstName"
+        :nantyaWho="editItem.secondName"
+        :syatyaWho="editItem.thirdName"
+        :petyaWho="editItem.fourthName"
       >
       </Tenpai>
     </v-dialog>
@@ -83,7 +83,7 @@
               outlined
               class="mr-2"
               width="100"
-              @click="calcuHan(roomItem)"
+              @click="calcuHan()"
               >翻計算</v-btn
             >
             <v-btn
@@ -92,7 +92,7 @@
               dark
               outlined
               width="100"
-              @click="calcuHu(roomItem)"
+              @click="calcuHu()"
               >符計算</v-btn
             >
           </div>
@@ -166,14 +166,14 @@
       <v-row justify="center">
         <v-col>
           <v-text-field
-            v-model="roomItem.firstName"
+            v-model="editItem.firstName"
             readonly
             label="東家"
           ></v-text-field>
         </v-col>
         <v-col>
           <v-text-field
-            v-model="roomItem.firstScore"
+            v-model="editItem.firstScore"
             label="点数"
           ></v-text-field>
         </v-col>
@@ -185,7 +185,7 @@
         </v-col>
         <v-col>
           <div align="center">
-            <v-btn rounded small color="red" dark @click="reach(roomItem, '1')"
+            <v-btn rounded small color="red" dark @click="reach(editItem, '1')"
               >リーチ</v-btn
             >
           </div>
@@ -194,14 +194,14 @@
       <v-row justify="center">
         <v-col>
           <v-text-field
-            v-model="roomItem.secondName"
+            v-model="editItem.secondName"
             readonly
             label="南家"
           ></v-text-field>
         </v-col>
         <v-col>
           <v-text-field
-            v-model="roomItem.secondScore"
+            v-model="editItem.secondScore"
             label="点数"
           ></v-text-field>
         </v-col>
@@ -213,7 +213,7 @@
         </v-col>
         <v-col>
           <div align="center">
-            <v-btn rounded small color="red" dark @click="reach(roomItem, '2')"
+            <v-btn rounded small color="red" dark @click="reach(editItem, '2')"
               >リーチ</v-btn
             >
           </div>
@@ -222,14 +222,14 @@
       <v-row justify="center">
         <v-col>
           <v-text-field
-            v-model="roomItem.thirdName"
+            v-model="editItem.thirdName"
             readonly
             label="西家"
           ></v-text-field>
         </v-col>
         <v-col>
           <v-text-field
-            v-model="roomItem.thirdScore"
+            v-model="editItem.thirdScore"
             label="点数"
           ></v-text-field>
         </v-col>
@@ -241,7 +241,7 @@
         </v-col>
         <v-col>
           <div align="center">
-            <v-btn rounded small color="red" dark @click="reach(roomItem, '3')"
+            <v-btn rounded small color="red" dark @click="reach(editItem, '3')"
               >リーチ</v-btn
             >
           </div>
@@ -250,14 +250,14 @@
       <v-row justify="center">
         <v-col>
           <v-text-field
-            v-model="roomItem.fourthName"
+            v-model="editItem.fourthName"
             readonly
             label="北家"
           ></v-text-field>
         </v-col>
         <v-col>
           <v-text-field
-            v-model="roomItem.fourthScore"
+            v-model="editItem.fourthScore"
             label="点数"
           ></v-text-field>
         </v-col>
@@ -269,7 +269,7 @@
         </v-col>
         <v-col>
           <div align="center">
-            <v-btn rounded small color="red" dark @click="reach(roomItem, '4')"
+            <v-btn rounded small color="red" dark @click="reach(editItem, '4')"
               >リーチ</v-btn
             >
           </div>
@@ -284,7 +284,7 @@
               dark
               width="100"
               outlined
-              @click="liquidation(roomItem, calcuVar)"
+              @click="liquidation(editItem, calcuVar)"
               >清算</v-btn
             >
           </div>
@@ -317,33 +317,16 @@ import * as MAHJAN_FUNC from "../constants/mahjong";
 
 export default {
   name: "RecordScore",
+  props: ["editItem"],
   components: {
     HanKeisan,
     HuKeisan,
     Tenpai,
   },
   data: () => ({
-    playingRoom: false,
     huKeisanDialog: false,
     hanKeisanDialog: false,
     tenpaiDialog: false,
-    firstName: "",
-    secondName: "",
-    thirdName: "",
-    fourthName: "",
-    roomItem: {
-      motiten: 25000,
-      battleNo: 0,
-      ymd: "",
-      firstName: "",
-      firstScore: 0,
-      secondName: "",
-      secondScore: 0,
-      thirdName: "",
-      thirdScore: 0,
-      fourthName: "",
-      fourthScore: 0,
-    },
     tokuten: 0,
     reachBou: 0,
     honba: "",
@@ -457,7 +440,6 @@ export default {
         this.oyako,
         obj_agari
       );
-      this.reachBou = 0;
     },
 
     reach(item, who) {
@@ -500,6 +482,12 @@ export default {
       );
       plusMinus.northPlus = 0;
       plusMinus.northMinus = 0;
+      this.reachBou = 0;
+    },
+    exitRoom() {
+      this.$emit("close-from-taikyokusitu");
+      //this.roomTable = true;
+      //this.editItem = Object.assign({}, this.defaultItem);
     },
   },
 };

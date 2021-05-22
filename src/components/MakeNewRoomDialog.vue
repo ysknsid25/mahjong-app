@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog v-model="newRoomDialog" max-width="500px">
+    <v-dialog persistent v-model="newRoomDialog" max-width="500px">
       <template v-slot:activator="{ on }">
         <v-btn tile outlined color="red" dark class="mb-2" v-on="on"
           >New Room</v-btn
@@ -74,15 +74,10 @@
             color="secondary"
             dark
             text
-            @click="closeNewRoomDialog(editedItem)"
+            @click="closeNewRoomDialog()"
             >close</v-btn
           >
-          <v-btn
-            class="mr-2"
-            color="secondary"
-            dark
-            text
-            @click="reset(editedItem)"
+          <v-btn class="mr-2" color="secondary" dark text @click="reset()"
             >Reset</v-btn
           >
           <v-btn color="secondary" dark text @click="save">Save</v-btn>
@@ -95,6 +90,7 @@
 import * as MAHJAN_FUNC from "../constants/mahjong";
 export default {
   name: "MakeNewRoomDialog",
+  props: ["maxBattleNo"],
   data: () => ({
     newRoomDialog: false,
     menu: false,
@@ -107,59 +103,42 @@ export default {
     fourthName: "",
   }),
   methods: {
-    closeNewRoomDialog(item) {
+    closeNewRoomDialog() {
       if (confirm("保存せず終了しますか？")) {
         this.newRoomDialog = false;
-        this.clear(item, this);
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem);
-        });
+        this.clear();
       }
     },
-    reset(item) {
+    reset() {
       if (confirm("入力値を初期化します。よろしいですか？")) {
-        this.clear(item, this);
+        this.clear();
       }
     },
-    //新規作成されたルームの最新番号を取得する
-    getMaxBattleNo(scores) {
-      let battleNoList = [];
-
-      for (var key in scores) {
-        battleNoList.push(scores[key].battleNo);
-      }
-
-      const aryMax = function (a, b) {
-        return Math.max(a, b);
-      };
-      return battleNoList.reduce(aryMax);
-    },
-    clear(item, obj) {
-      obj.date = new Date().toISOString().substr(0, 10);
-      obj.selectedMotiten = 0;
-      obj.firstName = "";
-      obj.secondName = "";
-      obj.thirdName = "";
-      obj.fourthName = "";
+    clear() {
+      this.date = new Date().toISOString().substr(0, 10);
+      this.selectedMotiten = 0;
+      this.firstName = "";
+      this.secondName = "";
+      this.thirdName = "";
+      this.fourthName = "";
     },
 
     save() {
-      this.editedItem.ymd = this.date;
-      this.editedItem.firstName = this.firstName;
-      this.editedItem.secondName = this.secondName;
-      this.editedItem.thirdName = this.thirdName;
-      this.editedItem.fourthName = this.fourthName;
-      this.editedItem.battleNo = this.getMaxBattleNo(this.scores) + 1;
-
-      this.scores.push(this.editedItem);
-
+      const retVal = {
+        battleNo: this.maxBattleNo + 1,
+        ymd: this.date,
+        firstName: this.firstName,
+        firstScore: this.selectedMotiten,
+        secondName: this.secondName,
+        secondScore: this.selectedMotiten,
+        thirdName: this.thirdName,
+        thirdScore: this.selectedMotiten,
+        fourthName: this.fourthName,
+        fourthScore: this.selectedMotiten,
+      };
       this.newRoomDialog = false;
-
-      this.clear(this.editedItem, this);
-
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-      });
+      this.clear();
+      this.$emit("save-from-newroom", retVal);
     },
   },
 };

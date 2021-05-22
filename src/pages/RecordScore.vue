@@ -14,7 +14,10 @@
         <template v-slot:top>
           <v-toolbar flat color="white">
             <v-spacer></v-spacer>
-            <MakeNewRoomDialog></MakeNewRoomDialog>
+            <MakeNewRoomDialog
+              :maxBattleNo="scores[scores.length - 1]['battleNo']"
+              @save-from-newroom="saveNewRoom"
+            ></MakeNewRoomDialog>
           </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
@@ -27,7 +30,11 @@
           <v-btn color="primary" @click="initialize">Reset</v-btn>
         </template>
       </v-data-table>
-      <TaikyokuRoom v-show="!roomTable"></TaikyokuRoom>
+      <TaikyokuRoom
+        v-show="!roomTable"
+        :editItem="toTaikyokuRoomItem"
+        @close-from-taikyokusitu="roomTable = true"
+      ></TaikyokuRoom>
     </div>
   </div>
 </template>
@@ -42,6 +49,7 @@ export default {
   },
   data: () => ({
     roomTable: true,
+    toTaikyokuRoomItem: "",
     headers: [
       {
         text: "No",
@@ -50,13 +58,13 @@ export default {
         sortable: false,
       },
       { text: "YMD", value: "ymd" },
-      { text: "1th", value: "firstName", sortable: false },
+      { text: "東", value: "firstName", sortable: false },
       { text: "Score", value: "firstScore", sortable: false },
-      { text: "2nd", value: "secondName", sortable: false },
+      { text: "南", value: "secondName", sortable: false },
       { text: "Score", value: "secondScore", sortable: false },
-      { text: "3rd", value: "thirdName", sortable: false },
+      { text: "西", value: "thirdName", sortable: false },
       { text: "Score", value: "thirdScore", sortable: false },
-      { text: "4th", value: "fourthName", sortable: false },
+      { text: "北", value: "fourthName", sortable: false },
       { text: "Score", value: "fourthScore", sortable: false },
       { text: "Actions", value: "actions", sortable: false },
     ],
@@ -137,10 +145,13 @@ export default {
   }),
 
   methods: {
+    saveNewRoom(val) {
+      this.roomTable = false;
+      this.scores.push(val);
+    },
     editItem(item) {
       this.roomTable = false;
-      this.roomItem = Object.assign({}, item);
-      this.roomItemIndex = this.scores.indexOf(item);
+      this.toTaikyokuRoomItem = item;
       this.playingRoom = true;
     },
     deleteItem(item) {

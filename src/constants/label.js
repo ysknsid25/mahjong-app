@@ -1,7 +1,6 @@
 export const recentlyScoreTblHeadList = [
     "平均得点",
     "和了率",
-    "ツモ率",
     "放銃率",
     "立直率",
 ];
