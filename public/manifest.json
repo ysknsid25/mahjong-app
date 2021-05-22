@@ -5,7 +5,7 @@
     "scope": "/",
     "start_url": "/",
     "name": "Mahjonager",
-    "short_name": "MSM",
+    "short_name": "Mahjonager",
     "icons": [
         {
             "src": "./images/icons/icon-192x192.png",

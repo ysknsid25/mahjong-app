@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-navigation-drawer app absolute temporary v-model="drawer" clipped>
+    <v-navigation-drawer app temporary v-model="drawer" clipped>
       <v-container>
         <v-list-item>
           <v-list-item-content>
@@ -12,12 +12,7 @@
           <v-list-item v-for="nav_list in nav_lists" :key="nav_list.name">
             <v-list-item-content>
               <v-list-item-title>
-                <v-btn
-                  text
-                  color="#263238"
-                  :href="nav_list.url"
-                  :target="nav_list.target"
-                >
+                <v-btn text color="#263238" :href="nav_list.url">
                   <v-icon :color="nav_list.iconColor" class="mr-4">{{
                     nav_list.icon
                   }}</v-icon>
