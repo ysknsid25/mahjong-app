@@ -48,15 +48,19 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text color="secondary" href="https://">お知らせ一覧を表示</v-btn>
+        <v-btn text color="secondary" :href="noteUrl" target="blank"
+          >お知らせ一覧を表示</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 <script>
+import { noteUrl } from "../constants/links.js";
 export default {
   name: "Subscriber",
   data: () => ({
+    noteUrl: noteUrl,
     isExistYetNotify: false,
     bellColor: "secondary",
     loading: false,

@@ -3,7 +3,7 @@
     <v-app-bar color="white" outlined flat app clipped-left>
       <v-app-bar-nav-icon>
         <v-img
-          src="https://firebasestorage.googleapis.com/v0/b/mahjong-app-65bc3.appspot.com/o/app%2Ffavicon.ico?alt=media&token=1d4930ca-59f4-44d4-9822-5ac0682adc1e"
+          src="../../public/images/icons/icon-192x192.png"
           max-height="30"
           max-width="30"
         ></v-img>
@@ -22,11 +22,18 @@
         Sign in
         <v-icon class="ml-2">fas fa-sign-in-alt</v-icon>
       </v-btn>
-      <v-btn tile color="green darken-4" dark outlined width="130"
+      <v-btn
+        tile
+        color="green darken-4"
+        dark
+        outlined
+        width="130"
+        :href="noteUrl"
+        target="blank"
         >Release Note</v-btn
       >
     </v-app-bar>
-    <v-container class="mt-4">
+    <v-container class="mt-10">
       <v-row justify="center">
         <v-col cols="12"></v-col>
       </v-row>
@@ -34,7 +41,7 @@
         <v-col cols="12">
           <div align="center">
             <v-img
-              src="https://firebasestorage.googleapis.com/v0/b/mahjong-app-65bc3.appspot.com/o/app%2Ficon-256x256.png?alt=media&token=0f65f55c-f94f-42ab-9a63-e493ebeb96ee"
+              src="../../public/images/icons/icon-256x256.png"
               max-height="256"
               max-width="256"
             ></v-img>
@@ -87,8 +94,11 @@
   </v-app>
 </template>
 <script>
+import { noteUrl } from "../constants/links";
 export default {
   name: "Top",
-  data: () => ({}),
+  data: () => ({
+    noteUrl: noteUrl,
+  }),
 };
 </script>

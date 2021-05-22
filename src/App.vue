@@ -1,14 +1,8 @@
 <template>
-  <Main></Main>
+  <router-view></router-view>
 </template>
 <script>
-import Main from "./pages/main";
-
 export default {
   name: "App",
-
-  components: {
-    Main,
-  },
 };
 </script>
