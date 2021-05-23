@@ -15,6 +15,12 @@
     </template>
 
     <v-card>
+      <v-progress-linear
+        indeterminate
+        color="secondary"
+        dark
+        v-if="sending"
+      ></v-progress-linear>
       <v-card-title> リリース情報を公開する </v-card-title>
       <v-divider></v-divider>
       <v-card-text>
@@ -25,18 +31,19 @@
                 item-text="label"
                 item-value="value"
                 :items="notifyType"
+                v-model="infoType"
                 label="種別"
               />
             </v-col>
           </v-row>
           <v-row>
             <v-col cols="12">
-              <v-text-field label="タイトル"></v-text-field>
+              <v-text-field v-model="title" label="タイトル"></v-text-field>
             </v-col>
           </v-row>
           <v-row>
             <v-col cols="12">
-              <v-text-field label="URL"></v-text-field>
+              <v-text-field v-model="url" label="URL"></v-text-field>
             </v-col>
           </v-row>
         </v-container>
@@ -52,7 +59,8 @@
           color="secondary"
           dark
           width="100"
-          @click="dialog = false"
+          :disabled="sending"
+          @click="doUpdateArticle"
           >送信</v-btn
         >
       </v-card-actions>
@@ -61,12 +69,38 @@
 </template>
 <script>
 import { infoTypeKbn } from "../constants/kbn";
+import { createReleaseInfo } from "../firestoreaccess/ReleaseHistory";
+import { getTimeStamp } from "../constants/cmnfunc";
 export default {
   name: "Subscriber",
   data: () => ({
     isAdmin: true,
     dialog: false,
+    sending: false,
     notifyType: infoTypeKbn,
+    infoType: "",
+    title: "",
+    url: "",
   }),
+  methods: {
+    async doUpdateArticle() {
+      this.sending = true;
+      const releaseInfo = {
+        articleUrl: this.url,
+        infoType: this.infoType,
+        postDate: getTimeStamp(),
+        title: this.title,
+      };
+      await createReleaseInfo(releaseInfo);
+      this.clear();
+      this.sending = false;
+      this.dialog = false;
+    },
+    clear() {
+      this.infoType = "";
+      this.title = "";
+      this.url = "";
+    },
+  },
 };
 </script>

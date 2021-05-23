@@ -22,25 +22,28 @@
           ></v-progress-circular>
         </div>
         <div v-if="!loading">
-          <v-timeline align-top dense class="mt-4">
+          <v-timeline align-top dense class="mt-4" v-if="isExistNotify">
             <v-timeline-item
               v-for="notify in notifies"
-              :key="notify.time"
+              :key="notify.id"
               :color="notify.color"
               small
             >
               <div>
                 <div class="font-weight-normal">
-                  <strong>{{ notify.type }}</strong> @{{ notify.time }}
+                  <strong>{{ notify.infoType }}</strong> @{{ notify.postDate }}
                 </div>
                 <div>
-                  <v-btn text href="notify.url"
+                  <v-btn text href="notify.articleUrl"
                     ><font size="2">{{ notify.title }}</font></v-btn
                   >
                 </div>
               </div>
             </v-timeline-item>
           </v-timeline>
+          <div align="center" class="mt-4" v-if="!isExistNotify">
+            お知らせはありません。
+          </div>
         </div>
       </v-card-text>
 
@@ -57,6 +60,7 @@
 </template>
 <script>
 import { noteUrl } from "../constants/links.js";
+import { getReleaseInfoArr } from "../firestoreaccess/ReleaseHistory";
 export default {
   name: "Subscriber",
   data: () => ({
@@ -65,41 +69,24 @@ export default {
     bellColor: "secondary",
     loading: false,
     dialog: false,
-    notifies: [
-      {
-        type: "障害情報",
-        title: "FireBaseの障害",
-        time: "2021/05/19 10:20",
-        url: "https://",
-        color: "red",
-      },
-      {
-        type: "リリース情報",
-        title: "〇〇機能をリリースしました！",
-        time: "2021/05/18 09:20",
-        url: "https://",
-        color: "indigo",
-      },
-      {
-        type: "リリース情報",
-        title: "ＵＩを変更しました",
-        time: "2021/05/16 09:20",
-        url: "https://",
-        color: "indigo",
-      },
-      {
-        type: "障害情報",
-        title: "得点計算が正しく行われない",
-        time: "2021/05/15 10:20",
-        url: "https://",
-        color: "red",
-      },
-    ],
+    isExistNotify: false,
+    notifies: [],
   }),
+  created: function () {
+    this.getNotifies();
+  },
   mounted: function () {
     if (this.isExistYetNotify) {
       this.bellColor = "red";
     }
+  },
+  methods: {
+    async getNotifies() {
+      this.loading = true;
+      this.notifies = await getReleaseInfoArr();
+      this.isExistNotify = this.notifies.length > 0;
+      this.loading = false;
+    },
   },
 };
 </script>
