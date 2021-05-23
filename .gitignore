@@ -6,3 +6,8 @@ dist
 firebase.json
 .firebase
 doc
+
+plugins
+firestore.*
+hosting.*
+storage.*
