@@ -53,10 +53,21 @@
                   </v-row>
                   <v-row justify="center" dense>
                     <v-col>
-                      <v-select :items="horasha" label="和了者" />
+                      <v-select v-model="oya" :items="horashaList" label="親" />
                     </v-col>
                     <v-col>
-                      <v-select :items="shiharaiNin" label="支払人" />
+                      <v-select
+                        v-model="horasha"
+                        :items="horashaList"
+                        label="和了者"
+                      />
+                    </v-col>
+                    <v-col>
+                      <v-select
+                        v-model="shiharaiNin"
+                        :items="shiharaiNinList"
+                        label="支払人"
+                      />
                     </v-col>
                   </v-row>
                   <v-divider class="mt-6 mb-8"></v-divider>
@@ -251,8 +262,11 @@ export default {
     kyokuItems: MAHJAN_FUNC.KYOKU_VALUES,
     honba: "",
     honbaItems: MAHJAN_FUNC.HONBA_VALUES,
-    horasha: [],
-    shiharaiNin: [],
+    oya: "",
+    horasha: "",
+    shiharaiNin: "",
+    horashaList: [],
+    shiharaiNinList: [],
     calcuVar: {
       eastPlus: 0,
       eastMinus: 0,
@@ -298,8 +312,11 @@ export default {
       this.editItem.thirdName,
       this.editItem.fourthName,
     ];
-    this.horasha = menber;
-    this.shiharaiNin = [...menber, "All"];
+    this.oya = this.editItem.firstName;
+    this.horasha = this.editItem.firstName;
+    this.shiharaiNin = "All";
+    this.horashaList = menber;
+    this.shiharaiNinList = ["All", ...menber];
   },
   methods: {
     changeHonba(honba) {
@@ -362,6 +379,136 @@ export default {
     reverseDoDispHistory() {
       this.doDispHistory = !this.doDispHistory;
     },
+    /**
+     * @param addTokuten
+     * @param minusTokuten
+     * minusTokuten {
+     *  koMinusTokuten: 0,
+     *  minusTokuten: 0
+     * }
+     * て感じ。ツモのときだけこの形で返してくる。
+     * ロンの時はminusTokutenにだけ値が入ってる。
+     */
+    deployTokutenResut(addTokuten, minusTokuten) {
+      const isHoraFirstName = this.horasha === this.editItem.firstName;
+      const isHoraSecondName = this.horasha === this.editItem.secondName;
+      const isHoraThirdName = this.horasha === this.editItem.thirdName;
+
+      const isOyaFirstName = this.oya === this.editItem.firstName;
+      const isOyaSecondName = this.oya === this.editItem.secondName;
+      const isOyaThirdName = this.oya === this.editItem.thirdName;
+      const isOyaFourthName = this.oya === this.editItem.fourthName;
+
+      //+になる人を探して、得点を加算
+      if (isHoraFirstName) {
+        this.calcuVar.eastPlus = addTokuten;
+        this.calcuVar.eastMinus = 0;
+      } else if (isHoraSecondName) {
+        this.calcuVar.southPlus = addTokuten;
+        this.calcuVar.southMinus = 0;
+      } else if (isHoraThirdName) {
+        this.calcuVar.westPlus = addTokuten;
+        this.calcuVar.westMinus = 0;
+      } else {
+        this.calcuVar.northPlus = addTokuten;
+        this.calcuVar.northMinus = 0;
+      }
+      //ロンかツモかで支払い方法が分岐
+      if (this.shiharaiNin === "All") {
+        if (isHoraFirstName) {
+          if (isOyaSecondName) {
+            this.calcuVar.southMinus = minusTokuten["minusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
+          } else if (isOyaThirdName) {
+            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["minusTokuten"];
+            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
+          } else if (isOyaFourthName) {
+            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.northMinus = minusTokuten["minusTokuten"];
+          } else {
+            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
+          }
+        } else if (isHoraSecondName) {
+          if (isOyaFirstName) {
+            this.calcuVar.eastMinus = minusTokuten["minusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
+          } else if (isOyaThirdName) {
+            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["minusTokuten"];
+            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
+          } else if (isOyaFourthName) {
+            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.northMinus = minusTokuten["minusTokuten"];
+          } else {
+            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
+          }
+        } else if (isHoraThirdName) {
+          if (isOyaFirstName) {
+            this.calcuVar.eastMinus = minusTokuten["minusTokuten"];
+            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
+          } else if (isOyaSecondName) {
+            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.southMinus = minusTokuten["minusTokuten"];
+            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
+          } else if (isOyaFourthName) {
+            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.northMinus = minusTokuten["minusTokuten"];
+          } else {
+            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
+          }
+        } else {
+          if (isOyaFirstName) {
+            this.calcuVar.eastMinus = minusTokuten["minusTokuten"];
+            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
+          } else if (isOyaSecondName) {
+            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.southMinus = minusTokuten["minusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
+          } else if (isOyaThirdName) {
+            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["minusTokuten"];
+          } else {
+            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
+            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
+          }
+        }
+      } else {
+        if (!isHoraFirstName) {
+          this.calcuVar.eastMinus = minusTokuten["minusTokuten"];
+        } else if (!isHoraSecondName) {
+          this.calcuVar.southMinus = minusTokuten["minusTokuten"];
+        } else if (!isHoraThirdName) {
+          this.calcuVar.westMinus = minusTokuten["minusTokuten"];
+        } else {
+          this.calcuVar.northMinus = minusTokuten["minusTokuten"];
+        }
+      }
+    },
+    /**
+     * 計算自体は得点計算機能がしてくれる。
+     * で、結果を受け取る。
+     * まず、+になる人を探す。→麻雀でダブロンを除けは一度に上がれるのは一人だけなので、
+     * 清算を一人ずつすればいい。
+     * なので、まずは和了者の得点のところを+にしてあげる。
+     * 次に、支払い人のところに-をセットしないといけない。
+     * ただし、Allの場合は、和了者以外全員が-になるので、探索が必要になる。
+     */
   },
 };
 </script>
