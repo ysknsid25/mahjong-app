@@ -1,346 +1,258 @@
 <template>
   <div>
-    <v-dialog v-model="huKeisanDialog" max-width="800">
-      <HuKeisan @close-from-Hukeisan="refreshHuCalcResult"></HuKeisan>
-    </v-dialog>
-    <v-dialog v-model="hanKeisanDialog" max-width="800">
-      <HanKeisan @close-from-HanKeisan="refreshHanCalcResult"></HanKeisan>
-    </v-dialog>
-    <v-dialog v-model="tenpaiDialog" max-width="800">
-      <Tenpai
-        @close-from-Tenpai="refreshTenpaiCalcResult"
-        :tontyaWho="editItem.firstName"
-        :nantyaWho="editItem.secondName"
-        :syatyaWho="editItem.thirdName"
-        :petyaWho="editItem.fourthName"
-      >
-      </Tenpai>
-    </v-dialog>
     <v-container>
       <v-row justify="center">
-        <v-col offset="2"></v-col>
-        <v-col>
-          <v-select
-            v-model="oyako"
-            item-text="label"
-            item-value="value"
-            :items="oyakoItems"
-            label="親子"
-            @change="changeOyako"
-          />
-        </v-col>
-        <v-col>
-          <v-select
-            v-model="agari"
-            item-text="label"
-            item-value="value"
-            :items="agariItems"
-            label="和了方法"
-            @change="changeAgari"
-          />
-        </v-col>
-        <v-col offset="2"></v-col>
-      </v-row>
-      <v-row justify="center">
-        <v-col offset="2"></v-col>
-        <v-col>
-          <v-select
-            v-model="han"
-            item-text="label"
-            item-value="value"
-            :items="hanItems"
-            label="翻"
-            @change="changeHan"
-          />
-        </v-col>
-        <v-col>
-          <v-select
-            v-model="hu"
-            :items="huItems"
-            label="符"
-            @change="changeHu"
-          />
-        </v-col>
-        <v-col offset="2"></v-col>
-      </v-row>
-      <v-row justify="center">
-        <v-col offset="2"></v-col>
-        <v-col>
-          <v-select item-value="Daniel" label="和了者" />
-        </v-col>
-        <v-col>
-          <v-select item-value="全員" label="支払人" />
-        </v-col>
-        <v-col offset="2"></v-col>
-      </v-row>
-      <v-row justify="center">
-        <v-col>
+        <v-col cols="12">
           <div align="center">
-            <v-btn
-              tile
-              color="indigo"
-              dark
-              outlined
-              class="mr-2"
-              width="100"
-              @click="calcuHan()"
-              >翻計算</v-btn
-            >
-            <v-btn
-              tile
-              color="indigo"
-              dark
-              outlined
-              width="100"
-              @click="calcuHu()"
-              >符計算</v-btn
-            >
+            <v-card v-show="!doCalcurate && !doDispHistory" max-width="500">
+              <v-card-title>
+                <v-icon color="indigo" class="mr-2">fas fa-table</v-icon>
+                得点状況
+                <v-spacer></v-spacer>
+                <v-btn icon color="indigo" @click="saveBattleResult"
+                  ><v-icon>fas fa-sign-out-alt</v-icon></v-btn
+                >
+              </v-card-title>
+              <v-divider></v-divider>
+              <v-card-text>
+                <v-container>
+                  <v-row justify="center" dense>
+                    <v-col cols="12"> </v-col>
+                  </v-row>
+                  <v-row justify="center" dense>
+                    <v-col>
+                      <v-select
+                        v-model="ba"
+                        item-text="label"
+                        item-value="value"
+                        :items="baItems"
+                        label="場"
+                      />
+                    </v-col>
+                    <v-col>
+                      <v-select
+                        v-model="kyoku"
+                        :items="kyokuItems"
+                        label="局"
+                      />
+                    </v-col>
+                    <v-col @change="changeHonba">
+                      <v-select
+                        v-model="honba"
+                        :items="honbaItems"
+                        label="本場"
+                      />
+                    </v-col>
+                    <v-col>
+                      <div align="center">
+                        <v-avatar size="40" class="indigo ml-4 mt-1">
+                          <span class="white--text">{{ reachBou }}</span>
+                        </v-avatar>
+                      </div>
+                    </v-col>
+                  </v-row>
+                  <v-row justify="center" dense>
+                    <v-col>
+                      <v-select :items="horasha" label="和了者" />
+                    </v-col>
+                    <v-col>
+                      <v-select :items="shiharaiNin" label="支払人" />
+                    </v-col>
+                  </v-row>
+                  <v-divider class="mt-6 mb-8"></v-divider>
+                  <v-row justify="center" dense>
+                    <v-col>
+                      <v-text-field
+                        v-model="editItem.firstScore"
+                        :label="editItem.firstName"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col>
+                      <div align="center">
+                        <v-btn
+                          rounded
+                          small
+                          color="indigo"
+                          dark
+                          class="mt-4"
+                          @click="reach(editItem, '1')"
+                          >立直</v-btn
+                        >
+                      </div>
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model="calcuVar.eastPlus"
+                        label="＋"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model="calcuVar.eastMinus"
+                        label="-"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-row justify="center" dense>
+                    <v-col>
+                      <v-text-field
+                        v-model="editItem.secondScore"
+                        :label="editItem.secondName"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col>
+                      <div align="center">
+                        <v-btn
+                          rounded
+                          small
+                          color="indigo"
+                          dark
+                          class="mt-4"
+                          @click="reach(editItem, '2')"
+                          >立直</v-btn
+                        >
+                      </div>
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model="calcuVar.southPlus"
+                        label="＋"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model="calcuVar.southMinus"
+                        label="-"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-row justify="center" dense>
+                    <v-col>
+                      <v-text-field
+                        v-model="editItem.thirdScore"
+                        :label="editItem.thirdName"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col>
+                      <div align="center">
+                        <v-btn
+                          rounded
+                          small
+                          color="indigo"
+                          dark
+                          class="mt-4"
+                          @click="reach(editItem, '3')"
+                          >立直</v-btn
+                        >
+                      </div>
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model="calcuVar.westPlus"
+                        label="＋"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model="calcuVar.westMinus"
+                        label="-"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-row justify="center" dense>
+                    <v-col>
+                      <v-text-field
+                        v-model="editItem.fourthScore"
+                        :label="editItem.fourthName"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col>
+                      <div align="center">
+                        <v-btn
+                          rounded
+                          small
+                          color="indigo"
+                          dark
+                          class="mt-4"
+                          @click="reach(editItem, '4')"
+                          >立直</v-btn
+                        >
+                      </div>
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model="calcuVar.northPlus"
+                        label="＋"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model="calcuVar.northMinus"
+                        label="-"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-divider></v-divider>
+              <v-card-actions>
+                <v-btn icon color="indigo" @click="reverseDoCalcurate">
+                  <v-icon>fas fa-calculator</v-icon>
+                </v-btn>
+                <v-btn icon color="indigo" @click="reverseDoDispHistory">
+                  <v-icon>fas fa-history</v-icon>
+                </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn
+                  text
+                  color="indigo"
+                  dark
+                  @click="liquidation(editItem, calcuVar)"
+                  >清算</v-btn
+                >
+              </v-card-actions>
+            </v-card>
           </div>
-        </v-col>
-      </v-row>
-      <v-row justify="center">
-        <v-col>
-          <div align="center">
-            <v-btn
-              tile
-              color="indigo"
-              dark
-              class="mr-2"
-              width="100"
-              @click="ryukyoku"
-              >流局</v-btn
-            >
-            <v-btn
-              tile
-              color="indigo"
-              dark
-              width="100"
-              @click="calculateTokuten"
-              >得点計算</v-btn
-            >
-          </div>
-        </v-col>
-      </v-row>
-      <v-row justify="center">
-        <v-col cols="6" sm="4" md="4" class="font-weight-thin headline">
-          <div align="center">
-            {{ tokuten }}
-          </div>
-        </v-col>
-      </v-row>
-      <v-divider></v-divider>
-      <v-row justify="center">
-        <v-col>
-          <v-select
-            v-model="ba"
-            item-text="label"
-            item-value="value"
-            :items="baItems"
-            label="場"
-            @change="changeOyako"
-          />
-        </v-col>
-        <v-col>
-          <v-select v-model="kyoku" :items="kyokuItems" label="局" />
-        </v-col>
-        <v-col @change="changeHonba">
-          <v-select v-model="honba" :items="honbaItems" label="本場" />
-        </v-col>
-        <v-col>
-          <div align="center">
-            <v-chip
-              class="ma-2"
-              color="green"
-              text-color="white"
-              justify="center"
-              align-content="center"
-            >
-              リーチ
-              <v-avatar right class="green darken-4">
-                {{ reachBou }}
-              </v-avatar>
-            </v-chip>
-          </div>
-        </v-col>
-      </v-row>
-      <v-row justify="center">
-        <v-col>
-          <v-text-field
-            v-model="editItem.firstName"
-            readonly
-            label="東家"
-          ></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field
-            v-model="editItem.firstScore"
-            label="点数"
-          ></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field v-model="calcuVar.eastPlus" label="＋"></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field v-model="calcuVar.eastMinus" label="-"></v-text-field>
-        </v-col>
-        <v-col>
-          <div align="center">
-            <v-btn rounded small color="red" dark @click="reach(editItem, '1')"
-              >リーチ</v-btn
-            >
-          </div>
-        </v-col>
-      </v-row>
-      <v-row justify="center">
-        <v-col>
-          <v-text-field
-            v-model="editItem.secondName"
-            readonly
-            label="南家"
-          ></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field
-            v-model="editItem.secondScore"
-            label="点数"
-          ></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field v-model="calcuVar.southPlus" label="＋"></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field v-model="calcuVar.southMinus" label="-"></v-text-field>
-        </v-col>
-        <v-col>
-          <div align="center">
-            <v-btn rounded small color="red" dark @click="reach(editItem, '2')"
-              >リーチ</v-btn
-            >
-          </div>
-        </v-col>
-      </v-row>
-      <v-row justify="center">
-        <v-col>
-          <v-text-field
-            v-model="editItem.thirdName"
-            readonly
-            label="西家"
-          ></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field
-            v-model="editItem.thirdScore"
-            label="点数"
-          ></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field v-model="calcuVar.westPlus" label="＋"></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field v-model="calcuVar.westMinus" label="-"></v-text-field>
-        </v-col>
-        <v-col>
-          <div align="center">
-            <v-btn rounded small color="red" dark @click="reach(editItem, '3')"
-              >リーチ</v-btn
-            >
-          </div>
-        </v-col>
-      </v-row>
-      <v-row justify="center">
-        <v-col>
-          <v-text-field
-            v-model="editItem.fourthName"
-            readonly
-            label="北家"
-          ></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field
-            v-model="editItem.fourthScore"
-            label="点数"
-          ></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field v-model="calcuVar.northPlus" label="＋"></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field v-model="calcuVar.northMinus" label="-"></v-text-field>
-        </v-col>
-        <v-col>
-          <div align="center">
-            <v-btn rounded small color="red" dark @click="reach(editItem, '4')"
-              >リーチ</v-btn
-            >
-          </div>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <div align="center">
-            <v-btn
-              tile
-              color="red"
-              dark
-              width="100"
-              outlined
-              @click="liquidation(editItem, calcuVar)"
-              >清算</v-btn
-            >
-          </div>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <div align="center">
-            <v-btn text block color="blue darken-1" @click="exitRoom"
-              >Exit</v-btn
-            >
-          </div>
-        </v-col>
-        <v-col>
-          <div align="center">
-            <v-btn text block color="blue darken-1" @click="saveBattleResult"
-              >Save</v-btn
-            >
-          </div>
+          <TokutenKeisan
+            :editItem="editItem"
+            v-if="doCalcurate && !doDispHistory"
+            @back-tokuten-top="reverseDoCalcurate"
+          ></TokutenKeisan>
+          <HoraHistoy
+            :histories="horaHistories"
+            v-if="!doCalcurate && doDispHistory"
+            @close-from-HoraHistory="reverseDoDispHistory"
+          ></HoraHistoy>
         </v-col>
       </v-row>
     </v-container>
   </div>
 </template>
 <script>
-import HanKeisan from "../components/HanKeisan";
-import HuKeisan from "../components/HuKeisan";
-import Tenpai from "../components/Tenpai";
 import * as MAHJAN_FUNC from "../constants/mahjong";
+import TokutenKeisan from "../components/taikyokuroom/TokutenKeisan";
+import HoraHistoy from "../components/taikyokuroom/HoraHistory";
 
 export default {
   name: "RecordScore",
   props: ["editItem"],
   components: {
-    HanKeisan,
-    HuKeisan,
-    Tenpai,
+    TokutenKeisan,
+    HoraHistoy,
   },
   data: () => ({
-    huKeisanDialog: false,
-    hanKeisanDialog: false,
-    tenpaiDialog: false,
+    doCalcurate: false,
+    doDispHistory: false,
     tokuten: 0,
     reachBou: 0,
-    honba: "",
-    oyako: "0",
-    agari: "0",
     ba: 0,
-    hu: 20,
-    han: "1",
+    baItems: MAHJAN_FUNC.BA_VALUES,
     kyoku: "1",
-    oyakoItems: MAHJAN_FUNC.OYAKO_VALUES,
-    agariItems: MAHJAN_FUNC.AGARI_VALUES,
-    huItems: MAHJAN_FUNC.HU_VALUES,
-    hanItems: MAHJAN_FUNC.HAN_VALUES,
+    kyokuItems: MAHJAN_FUNC.KYOKU_VALUES,
+    honba: "",
     honbaItems: MAHJAN_FUNC.HONBA_VALUES,
+    horasha: [],
+    shiharaiNin: [],
     calcuVar: {
       eastPlus: 0,
       eastMinus: 0,
@@ -351,95 +263,47 @@ export default {
       northPlus: 0,
       northMinus: 0,
     },
-    baItems: MAHJAN_FUNC.BA_VALUES,
-    kyokuItems: MAHJAN_FUNC.KYOKU_VALUES,
+    tokutenInfoList: [],
+    horaHistories: [
+      {
+        id: "1",
+        time: "東1局",
+        fromTo: "Taro -> Yuki",
+        yaku: "役記録なし",
+      },
+      {
+        id: "2",
+        time: "東2局",
+        fromTo: "All -> You",
+        yaku: "立直, ツモ, 平和",
+      },
+      {
+        id: "3",
+        time: "南2局1本場",
+        fromTo: "Yuki -> You",
+        yaku: "役牌, ドラ1",
+      },
+      {
+        id: "4",
+        time: "東2局",
+        fromTo: "You -> Yuki",
+        yaku: "四暗刻",
+      },
+    ],
   }),
+  beforeUpdate: function () {
+    const menber = [
+      this.editItem.firstName,
+      this.editItem.secondName,
+      this.editItem.thirdName,
+      this.editItem.fourthName,
+    ];
+    this.horasha = menber;
+    this.shiharaiNin = [...menber, "All"];
+  },
   methods: {
-    refreshHuCalcResult(huVal) {
-      this.hu = huVal;
-      this.huKeisanDialog = false;
-    },
-
-    refreshHanCalcResult(hanVal) {
-      this.setHanVal(hanVal);
-      this.hanKeisanDialog = false;
-    },
-
-    //子コンポーネントから返ってきた翻の値をコンボにセットする
-    setHanVal(hanVal) {
-      if (hanVal < 5) {
-        this.han = hanVal;
-      } else if (hanVal == 5) {
-        this.han = "5";
-      } else if (hanVal == 6 || hanVal == 7) {
-        this.han = "6";
-      } else if (hanVal == 8 || hanVal == 9 || hanVal == 10) {
-        this.han = "7";
-      } else if (hanVal == 11 || hanVal == 12) {
-        this.han = "8";
-      } else if (hanVal >= 13) {
-        this.han = "9";
-      }
-    },
-
-    refreshTenpaiCalcResult(tenpaiValArr) {
-      if (tenpaiValArr.length > 0) {
-        this.calcuVar.eastPlus = tenpaiValArr[0].plusVal;
-        this.calcuVar.eastMinus = tenpaiValArr[0].minusVal;
-        this.calcuVar.southPlus = tenpaiValArr[1].plusVal;
-        this.calcuVar.southMinus = tenpaiValArr[1].minusVal;
-        this.calcuVar.westPlus = tenpaiValArr[2].plusVal;
-        this.calcuVar.westMinus = tenpaiValArr[2].minusVal;
-        this.calcuVar.northPlus = tenpaiValArr[3].plusVal;
-        this.calcuVar.northMinus = tenpaiValArr[3].minusVal;
-      }
-      this.tenpaiDialog = false;
-    },
-
     changeHonba(honba) {
       this.honba = honba;
-    },
-
-    changeHu(hu) {
-      this.hu = hu;
-    },
-
-    changeOyako(oyako) {
-      this.oyako = oyako.value;
-    },
-
-    changeAgari(agari) {
-      this.agari = agari;
-    },
-
-    changeHan(han) {
-      this.setHanVal(Number(han.value));
-    },
-
-    ryukyoku() {
-      this.tenpaiDialog = true;
-    },
-
-    calcuHan() {
-      this.hanKeisanDialog = true;
-    },
-
-    calcuHu() {
-      this.huKeisanDialog = true;
-    },
-
-    calculateTokuten() {
-      const obj_han = this.han;
-      const obj_hu = new String(this.hu);
-      const obj_agari = new String(this.agari);
-      this.tokuten = MAHJAN_FUNC.getTokuten(
-        this.honba,
-        this.reachBou,
-        obj_hu + obj_han,
-        obj_han,
-        this.oyako,
-        obj_agari
-      );
     },
 
     reach(item, who) {
@@ -484,10 +348,19 @@ export default {
       plusMinus.northMinus = 0;
       this.reachBou = 0;
     },
+    saveBattleResult() {
+      //清算結果を親に渡す
+    },
     exitRoom() {
       this.$emit("close-from-taikyokusitu");
       //this.roomTable = true;
       //this.editItem = Object.assign({}, this.defaultItem);
+    },
+    reverseDoCalcurate() {
+      this.doCalcurate = !this.doCalcurate;
+    },
+    reverseDoDispHistory() {
+      this.doDispHistory = !this.doDispHistory;
     },
   },
 };

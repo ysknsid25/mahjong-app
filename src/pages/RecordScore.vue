@@ -1,41 +1,51 @@
 <template>
   <div>
-    <div class="mt-10">
-      <v-data-table
-        v-show="roomTable"
-        :headers="headers"
-        :items="scores"
-        :items-per-page="15"
-        class="elevation-2"
-        item-key="battleNo"
-        :sort-by="['battleNo']"
-        :sort-desc="[true]"
-      >
-        <template v-slot:top>
-          <v-toolbar flat color="white">
-            <v-spacer></v-spacer>
-            <MakeNewRoomDialog
-              :maxBattleNo="scores[scores.length - 1]['battleNo']"
-              @save-from-newroom="saveNewRoom"
-            ></MakeNewRoomDialog>
-          </v-toolbar>
-        </template>
-        <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="editItem(item)">
-            mdi-pencil
-          </v-icon>
-          <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
-        </template>
-        <template v-slot:no-data>
-          <v-btn color="primary" @click="initialize">Reset</v-btn>
-        </template>
-      </v-data-table>
-      <TaikyokuRoom
-        v-show="!roomTable"
-        :editItem="toTaikyokuRoomItem"
-        @close-from-taikyokusitu="roomTable = true"
-      ></TaikyokuRoom>
-    </div>
+    <v-row justify="center">
+      <v-col cols="12">
+        <v-data-table
+          v-show="roomTable"
+          :headers="headers"
+          :items="scores"
+          :items-per-page="15"
+          class="elevation-2"
+          item-key="battleNo"
+          :sort-by="['battleNo']"
+          :sort-desc="[true]"
+          v-if="scores.length > 0"
+        >
+          <template v-slot:top>
+            <v-toolbar flat color="white">
+              <v-spacer></v-spacer>
+              <MakeNewRoomDialog
+                :maxBattleNo="scores[scores.length - 1]['battleNo']"
+                @save-from-newroom="saveNewRoom"
+              ></MakeNewRoomDialog>
+            </v-toolbar>
+          </template>
+          <template v-slot:item.actions="{ item }">
+            <v-icon small class="mr-2" @click="editItem(item)">
+              mdi-pencil
+            </v-icon>
+            <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+          </template>
+          <template v-slot:no-data>
+            <v-btn color="primary" @click="initialize">Reset</v-btn>
+          </template>
+        </v-data-table>
+        <div align="center" v-if="!scores.length > 0">
+          <MakeNewRoomDialog
+            :maxBattleNo="0"
+            @save-from-newroom="saveNewRoom"
+            class="ml-2"
+          ></MakeNewRoomDialog>
+        </div>
+        <TaikyokuRoom
+          v-show="!roomTable"
+          :editItem="toTaikyokuRoomItem"
+          @close-from-taikyokusitu="roomTable = true"
+        ></TaikyokuRoom>
+      </v-col>
+    </v-row>
   </div>
 </template>
 <script>
@@ -57,16 +67,12 @@ export default {
         value: "battleNo",
         sortable: false,
       },
-      { text: "YMD", value: "ymd" },
-      { text: "東", value: "firstName", sortable: false },
-      { text: "Score", value: "firstScore", sortable: false },
-      { text: "南", value: "secondName", sortable: false },
-      { text: "Score", value: "secondScore", sortable: false },
-      { text: "西", value: "thirdName", sortable: false },
-      { text: "Score", value: "thirdScore", sortable: false },
-      { text: "北", value: "fourthName", sortable: false },
-      { text: "Score", value: "fourthScore", sortable: false },
       { text: "Actions", value: "actions", sortable: false },
+      { text: "YMD", value: "ymd" },
+      { text: "東家(Your)", value: "firstScore", sortable: false },
+      { text: "南家", value: "secondScore", sortable: false },
+      { text: "西家", value: "thirdScore", sortable: false },
+      { text: "北家", value: "fourthScore", sortable: false },
     ],
     scores: [
       {

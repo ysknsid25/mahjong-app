@@ -8,6 +8,8 @@
               <img alt="user" v-bind:src="userInfo.imgPath" />
             </v-avatar>
             <p class="ml-3 mt-3">{{ userInfo.name }}</p>
+            <v-spacer></v-spacer>
+            <NameRegistCard :initUserName="userInfo.name"></NameRegistCard>
           </v-card-title>
         </div>
 
@@ -46,9 +48,12 @@
 </template>
 
 <script>
+import NameRegistCard from "../components/NameRegistCard";
 export default {
   name: "Profile",
-
+  components: {
+    NameRegistCard,
+  },
   data: () => ({
     loading: false,
     userInfo: {
@@ -80,7 +85,7 @@ export default {
       },
       {
         title: "1st",
-        time: "2021/05/17 18:20",
+        time: "2021/05/17 18:19",
         message: "Sena, Yuko, Yuki",
         color: "indigo",
       },

@@ -1,16 +1,10 @@
 <template>
   <v-card>
+    <v-card-title>
+      <v-icon color="indigo" class="mr-2">fas fa-check</v-icon>
+      聴牌した人を選んでください
+    </v-card-title>
     <v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="doCount">OK</v-btn>
-        <v-btn
-          color="blue darken-1"
-          text
-          @click="$emit('close-from-Tenpai', [])"
-          >Cancel</v-btn
-        >
-      </v-card-actions>
       <v-row justify="center">
         <v-col sm="2" md="2">
           <v-checkbox
@@ -54,6 +48,14 @@
         </v-col>
       </v-row>
     </v-card-text>
+    <v-divider></v-divider>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn color="blue darken-1" text @click="doCount">OK</v-btn>
+      <v-btn color="blue darken-1" text @click="$emit('close-from-Tenpai', [])"
+        >Cancel</v-btn
+      >
+    </v-card-actions>
   </v-card>
 </template>
 <script>

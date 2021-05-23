@@ -1,16 +1,11 @@
 <template>
   <v-card>
+    <v-card-title>
+      <v-icon color="indigo" class="mr-2">fas fa-calculator</v-icon>
+      符計算
+    </v-card-title>
+    <v-divider></v-divider>
     <v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="doCount">OK</v-btn>
-        <v-btn
-          color="blue darken-1"
-          text
-          @click="$emit('close-from-Hukeisan', 20)"
-          >Cancel</v-btn
-        >
-      </v-card-actions>
       <v-row justify="center">
         <v-col sm="2" md="4">
           <v-checkbox
@@ -89,6 +84,14 @@
         </v-col>
       </v-row>
     </v-card-text>
+    <v-divider></v-divider>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn color="indigo" text @click="$emit('close-from-Hukeisan', 20)"
+        >Cancel</v-btn
+      >
+      <v-btn color="indigo" text @click="doCount">OK</v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 <script>

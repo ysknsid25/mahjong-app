@@ -2,9 +2,9 @@
   <div>
     <v-dialog persistent v-model="newRoomDialog" max-width="500px">
       <template v-slot:activator="{ on }">
-        <v-btn tile outlined color="red" dark class="mb-2" v-on="on"
-          >New Room</v-btn
-        >
+        <v-btn fab color="indigo" dark small v-on="on">
+          <v-icon>fas fa-plus</v-icon>
+        </v-btn>
       </template>
       <v-card>
         <v-card-title>
@@ -88,6 +88,7 @@
 </template>
 <script>
 import * as MAHJAN_FUNC from "../constants/mahjong";
+
 export default {
   name: "MakeNewRoomDialog",
   props: ["maxBattleNo"],
@@ -126,7 +127,7 @@ export default {
     save() {
       const retVal = {
         battleNo: this.maxBattleNo + 1,
-        ymd: this.date,
+        ymd: this.date.replaceAll("-", "/"),
         firstName: this.firstName,
         firstScore: this.selectedMotiten,
         secondName: this.secondName,

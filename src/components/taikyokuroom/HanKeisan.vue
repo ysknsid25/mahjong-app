@@ -1,16 +1,11 @@
 <template>
   <v-card>
+    <v-card-title>
+      <v-icon color="indigo" class="mr-2">fas fa-calculator</v-icon>
+      翻計算
+    </v-card-title>
+    <v-divider></v-divider>
     <v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="doCount">OK</v-btn>
-        <v-btn
-          color="blue darken-1"
-          text
-          @click="$emit('close-from-HanKeisan', 0)"
-          >Cancel</v-btn
-        >
-      </v-card-actions>
       <v-row justify="center" cols="5">
         <v-col sm="2" md="2">
           <div class="font-weight-thin headline">1翻</div>
@@ -99,6 +94,14 @@
         </v-col>
       </v-row>
     </v-card-text>
+    <v-divider></v-divider>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn color="indigo" text @click="$emit('close-from-HanKeisan', 0)"
+        >Cancel</v-btn
+      >
+      <v-btn color="indigo" text @click="doCount">OK</v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 <script>
@@ -119,6 +122,7 @@ export default {
       "平和",
       "一盃口",
       "役牌",
+      "風牌",
       "槍槓",
       "嶺上開花",
       "河底",
@@ -130,7 +134,7 @@ export default {
     ryanhans: [
       "ダブルリーチ",
       "七対子",
-      "ダブ東・ダブ南",
+      "連風牌",
       "対々和",
       "三暗刻",
       "三色同順",
@@ -174,7 +178,6 @@ export default {
         this.rohanSelected.length * 6 +
         this.yakumanSelected.length * 13 +
         this.dora;
-
       this.clearScreen(this);
       this.$emit("close-from-HanKeisan", String(this.hanTotal));
     },
