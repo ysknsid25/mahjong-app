@@ -60,7 +60,7 @@
           <div align="center">Mahjan × Manager</div>
         </v-col>
       </v-row>
-      <v-row justify="center" v-if="$vuetify.breakpoint.xs">
+      <v-row justify="center" v-if="$vuetify.breakpoint.xs" class="mt-6">
         <v-col cols="12">
           <div align="center">
             <v-btn color="secondary" dark tile outlined width="300">
@@ -70,7 +70,7 @@
           </div>
         </v-col>
       </v-row>
-      <v-row justify="center">
+      <v-row justify="center" class="mt-6">
         <v-col cols="12">
           <div align="center">
             <v-btn icon tile outlined color="#1DA1F2" width="300">
@@ -80,6 +80,7 @@
           </div>
         </v-col>
       </v-row>
+      <!--
       <v-row justify="center">
         <v-col cols="12">
           <div align="center">
@@ -90,6 +91,7 @@
           </div>
         </v-col>
       </v-row>
+      -->
     </v-container>
   </v-app>
 </template>
