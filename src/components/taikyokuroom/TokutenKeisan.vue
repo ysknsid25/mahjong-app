@@ -17,33 +17,13 @@
           <v-dialog v-model="tenpaiDialog" max-width="800">
             <Tenpai
               @close-from-Tenpai="refreshTenpaiCalcResult"
-              :tontyaWho="editItem.firstName"
-              :nantyaWho="editItem.secondName"
-              :syatyaWho="editItem.thirdName"
-              :petyaWho="editItem.fourthName"
+              :tontyaWho="editItem.first.name"
+              :nantyaWho="editItem.second.name"
+              :syatyaWho="editItem.third.name"
+              :petyaWho="editItem.fourth.name"
             >
             </Tenpai>
           </v-dialog>
-          <v-row justify="center">
-            <v-col>
-              <v-select
-                v-model="oyako"
-                item-text="label"
-                item-value="value"
-                :items="oyakoItems"
-                label="親子"
-              />
-            </v-col>
-            <v-col>
-              <v-select
-                v-model="agari"
-                item-text="label"
-                item-value="value"
-                :items="agariItems"
-                label="和了方法"
-              />
-            </v-col>
-          </v-row>
           <v-row justify="center">
             <v-col>
               <v-select
@@ -56,6 +36,13 @@
               />
             </v-col>
             <v-col>
+              <v-btn tile outlined color="indigo" dark @click="calcuHan()"
+                >役選択</v-btn
+              >
+            </v-col>
+          </v-row>
+          <v-row justify="center">
+            <v-col>
               <v-select
                 v-model="hu"
                 :items="huItems"
@@ -63,18 +50,7 @@
                 @change="changeHu"
               />
             </v-col>
-          </v-row>
-          <v-row justify="center">
             <v-col>
-              <v-btn
-                tile
-                outlined
-                color="indigo"
-                dark
-                class="mr-2"
-                @click="calcuHan()"
-                >翻計算</v-btn
-              >
               <v-btn tile outlined color="indigo" dark @click="calcuHu()"
                 >符計算</v-btn
               >
@@ -113,14 +89,11 @@ export default {
     huKeisanDialog: false,
     hanKeisanDialog: false,
     tenpaiDialog: false,
-    oyako: "0",
-    oyakoItems: MAHJAN_FUNC.OYAKO_VALUES,
-    agari: "0",
-    agariItems: MAHJAN_FUNC.AGARI_VALUES,
     hu: 20,
     han: "1",
     huItems: MAHJAN_FUNC.HU_VALUES,
     hanItems: MAHJAN_FUNC.HAN_VALUES,
+    horaYaku: "",
   }),
   methods: {
     refreshHuCalcResult(huVal) {
@@ -128,7 +101,13 @@ export default {
       this.huKeisanDialog = false;
     },
 
-    refreshHanCalcResult(hanVal) {
+    refreshHanCalcResult(hanInfo) {
+      const hanVal =
+        typeof hanInfo["hanTotal"] == "undefined" ? "1" : hanInfo["hanTotal"];
+      this.horaYaku =
+        typeof hanInfo["selectedYau"] == "undefined"
+          ? ""
+          : hanInfo["selectedYau"];
       this.setHanVal(hanVal);
       this.hanKeisanDialog = false;
     },
@@ -151,14 +130,8 @@ export default {
     },
     refreshTenpaiCalcResult(tenpaiValArr) {
       if (tenpaiValArr.length > 0) {
-        this.calcuVar.eastPlus = tenpaiValArr[0].plusVal;
-        this.calcuVar.eastMinus = tenpaiValArr[0].minusVal;
-        this.calcuVar.southPlus = tenpaiValArr[1].plusVal;
-        this.calcuVar.southMinus = tenpaiValArr[1].minusVal;
-        this.calcuVar.westPlus = tenpaiValArr[2].plusVal;
-        this.calcuVar.westMinus = tenpaiValArr[2].minusVal;
-        this.calcuVar.northPlus = tenpaiValArr[3].plusVal;
-        this.calcuVar.northMinus = tenpaiValArr[3].minusVal;
+        this.tenpaiDialog = false;
+        this.$emit("back-tokuten-top-tenpai", tenpaiValArr);
       }
       this.tenpaiDialog = false;
     },
@@ -184,17 +157,13 @@ export default {
     },
 
     calculateTokuten() {
-      const obj_han = this.han;
-      const obj_hu = new String(this.hu);
-      const obj_agari = new String(this.agari);
-      this.tokuten = MAHJAN_FUNC.getTokuten(
-        this.honba,
-        this.reachBou,
-        obj_hu + obj_han,
-        obj_han,
-        this.oyako,
-        obj_agari
-      );
+      const retVal = {
+        han: this.han,
+        hu: new String(this.hu),
+        yakuInfo: this.horaYaku,
+      };
+      this.horaYaku = "";
+      this.$emit("back-tokuten-top-seisan", retVal);
     },
     backTokutenTop() {
       this.$emit("back-tokuten-top");

@@ -10,7 +10,7 @@
         <v-col sm="2" md="2">
           <div class="font-weight-thin headline">1翻</div>
           <v-divider></v-divider>
-          <div v-for="(itihanyaku, i) in itihans" :key="i">
+          <div v-for="(itihanyaku, i) in itihans" :key="itihanyaku + i">
             <v-checkbox
               :id="'itihanyaku' + i"
               v-model="itihanSelected"
@@ -24,7 +24,7 @@
         <v-col sm="2" md="2">
           <div class="font-weight-thin headline">2翻</div>
           <v-divider></v-divider>
-          <div v-for="(ryanhanyaku, i) in ryanhans" :key="i">
+          <div v-for="(ryanhanyaku, i) in ryanhans" :key="ryanhanyaku + i">
             <v-checkbox
               :id="'ryanhanyaku' + i"
               v-model="ryanhanSelected"
@@ -38,7 +38,7 @@
         <v-col sm="2" md="2">
           <div class="font-weight-thin headline">3翻</div>
           <v-divider></v-divider>
-          <div v-for="(sanhanyaku, i) in sanhans" :key="i">
+          <div v-for="(sanhanyaku, i) in sanhans" :key="sanhanyaku + i">
             <v-checkbox
               :id="'sanhanyaku' + i"
               v-model="sanhanSelected"
@@ -50,7 +50,7 @@
           </div>
           <div class="font-weight-thin headline mt-4">5翻</div>
           <v-divider></v-divider>
-          <div v-for="(uhanyaku, i) in uhans" :key="i">
+          <div v-for="(uhanyaku, i) in uhans" :key="uhanyaku + i">
             <v-checkbox
               :id="'uhanyaku' + i"
               v-model="uhanSelected"
@@ -62,7 +62,7 @@
           </div>
           <div class="font-weight-thin headline mt-4">6翻</div>
           <v-divider></v-divider>
-          <div v-for="(rohanyaku, i) in rohans" :key="i">
+          <div v-for="(rohanyaku, i) in rohans" :key="rohanyaku + i">
             <v-checkbox
               :id="'rohanyaku' + i"
               v-model="rohanSelected"
@@ -76,7 +76,7 @@
         <v-col sm="2" md="2">
           <div class="font-weight-thin headline">役満</div>
           <v-divider></v-divider>
-          <div v-for="(yakumanyaku, i) in yakumans" :key="i">
+          <div v-for="(yakumanyaku, i) in yakumans" :key="'yakuman' + i">
             <v-checkbox
               :id="'yakuman' + i"
               v-model="yakumanSelected"
@@ -97,7 +97,7 @@
     <v-divider></v-divider>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="indigo" text @click="$emit('close-from-HanKeisan', 0)"
+      <v-btn color="indigo" text @click="$emit('close-from-HanKeisan', 1)"
         >Cancel</v-btn
       >
       <v-btn color="indigo" text @click="doCount">OK</v-btn>
@@ -178,8 +178,22 @@ export default {
         this.rohanSelected.length * 6 +
         this.yakumanSelected.length * 13 +
         this.dora;
+      const DOAR = this.dora > 0 ? "ドラ" + this.dora : "";
+      const selectedYau = [
+        ...this.itihanSelected,
+        ...this.ryanhanSelected,
+        ...this.sanhanSelected,
+        ...this.uhanSelected,
+        ...this.rohanSelected,
+        ...this.yakumanSelected,
+        DOAR,
+      ];
+      const retVal = {
+        hanTotal: this.hanTotal,
+        selectedYau: selectedYau,
+      };
       this.clearScreen(this);
-      this.$emit("close-from-HanKeisan", String(this.hanTotal));
+      this.$emit("close-from-HanKeisan", retVal);
     },
 
     clearScreen() {

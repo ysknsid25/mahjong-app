@@ -217,7 +217,7 @@ const OYANOTOKUTEN_MAP = new Map([
     ["11040", OYANOMANGAN_TUMO],
 ]);
 
-const HANEMANIJOU_MAP = new Map([
+const MANGANIJOU_MAP = new Map([
     ["501", "12000"],
     ["500", "4000"],
     ["511", "8000"],
@@ -261,15 +261,14 @@ export const getTokuten = (
     const obj_tokutenKey = new String(tokutenKey);
     const obj_agari = new String(agari);
     const tokutenkeyManganMiman = obj_tokutenKey + obj_agari;
-    const tokutenKeyHanemanIjou = manganIjouKey + oyako + agari;
-    const reachRyou = reachBou * 1000;
-    let totalBaRyou = 0;
-    let tokuten = 0;
-
-    if (basuu > 0) {
-        totalBaRyou = BA_RYOU * basuu;
-    }
-
+    const tokutenKeyManganIjou = manganIjouKey + oyako + agari;
+    const kyoutaku = reachBou * 1000;
+    const totalBaRyou = BA_RYOU * basuu;
+    let tokuten = {
+        oyaTokuten: 0,
+        koTokuten: 0,
+        kyotaku: 0,
+    };
     if (manganIjouKey < MANGAN_MIMAN) {
         tokuten = getTokutenManganMiman(
             tokutenkeyManganMiman,
@@ -278,70 +277,88 @@ export const getTokuten = (
             agari
         );
     } else {
-        tokuten = getTokutenHanemanIjou(
-            tokutenKeyHanemanIjou,
-            oyako,
+        tokuten = getTokutenManganIjou(
+            tokutenKeyManganIjou,
             totalBaRyou,
             agari
         );
     }
-
-    if (reachRyou > 0) {
-        tokuten = tokuten + " , リーチ料:" + reachRyou;
-    }
-
+    tokuten.kyotaku = kyoutaku;
     return tokuten;
 };
 
 //満貫未満の場合の得点を算出する
 export const getTokutenManganMiman = (key, oyako, totalBaRyou, agari) => {
-    let tokuten = "";
-    let baryouWhenTumo = 0;
-
-    if (totalBaRyou > 0) {
-        baryouWhenTumo = totalBaRyou / 3;
+    const baryou = getBaryou(totalBaRyou, agari);
+    let tokuten = KONOTOKUTEN_MAP.get(key);
+    if (oyako == OYA) {
+        tokuten = OYANOTOKUTEN_MAP.get(key);
     }
+    const retTokuten = getTokutenContainBaryou(tokuten, baryou);
+    return retTokuten;
+};
 
-    if (oyako == KO && agari == TUMO) {
-        tokuten = addBaryou(KONOTOKUTEN_MAP.get(key), baryouWhenTumo);
-    } else if (oyako == KO && agari == RON) {
-        tokuten = +KONOTOKUTEN_MAP.get(key) + totalBaRyou;
-    } else if (oyako == OYA && agari == TUMO) {
-        tokuten = +OYANOTOKUTEN_MAP.get(key) + baryouWhenTumo;
-    } else if (oyako == OYA && agari == RON) {
-        tokuten = +OYANOTOKUTEN_MAP.get(key) + totalBaRyou;
-    }
-
+/**
+ * 満貫以上の得点を計算する
+ */
+export const getTokutenManganIjou = (key, totalBaRyou, agari) => {
+    const baryou = getBaryou(totalBaRyou, agari);
+    const tokuten = getTokutenContainBaryou(MANGANIJOU_MAP.get(key), baryou);
     return tokuten;
 };
 
 /**
- * 跳満以上の得点を計算する
+ * 場料も含めた得点を返します。
+ * @param tokuten
+ * @param baryou
+ * @returns
  */
-export const getTokutenHanemanIjou = (key, oyako, totalBaRyou, agari) => {
-    let tokuten = HANEMANIJOU_MAP.get(key);
-    let baryouWhenTumo = 0;
-
-    if (totalBaRyou > 0) {
-        baryouWhenTumo = totalBaRyou / 3;
+const getTokutenContainBaryou = (tokuten, baryou) => {
+    let tokutenArr = [];
+    if (tokuten.indexOf(",") > -1) {
+        tokutenArr = tokuten.split(",");
     }
-
-    if (oyako == KO && agari == TUMO) {
-        tokuten = addBaryou(tokuten, baryouWhenTumo);
-    } else if (agari == TUMO) {
-        tokuten = +tokuten + baryouWhenTumo;
+    let retTokuten = {
+        oyaTokuten: 0,
+        koTokuten: 0,
+        kyotaku: 0,
+    };
+    if (tokutenArr.length > 1) {
+        retTokuten.oyaTokuten = parseInt(tokutenArr[1]) + baryou;
+        retTokuten.koTokuten = parseInt(tokutenArr[0]) + baryou;
     } else {
-        tokuten = +tokuten + totalBaRyou;
+        retTokuten.oyaTokuten = parseInt(tokuten) + baryou;
     }
-
-    return tokuten;
+    return retTokuten;
 };
 
-//自摸時の場料を加えた得点を返します。
-export const addBaryou = (tokuten, baryou) => {
-    const tokutenArr = tokuten.split(",");
-    const konoTokuten = new String(+tokutenArr[0] + baryou);
-    const oyanoTokuten = new String(+tokutenArr[1] + baryou);
+//場料を計算します
+const getBaryou = (totalBaRyou, agari) => {
+    let baryou = totalBaRyou;
+    if (totalBaRyou > 0 && agari === TUMO) {
+        baryou = totalBaRyou / 3;
+    }
+    return baryou;
+};
 
-    return konoTokuten + "," + oyanoTokuten;
+/**
+ * 存在しない得点のチェック
+ */
+export const isInvalidHuHan = (hu, han, agari) => {
+    const PINHU_NOT_EXIST_MSG = "20符1翻は存在しません。";
+    const TITOI_NOT_EXIST_MSG = "25符1翻は存在しません。";
+    const PINHU_ERR_MSG = "20符はツモのみです";
+    const TITOI_ERR_MSG = "25符2翻はロンのみです";
+    const key = hu + han + agari;
+    const HANEMANIJOU_MAP = new Map([
+        ["2010", PINHU_NOT_EXIST_MSG],
+        ["2011", PINHU_NOT_EXIST_MSG],
+        ["2021", PINHU_ERR_MSG],
+        ["2031", PINHU_ERR_MSG],
+        ["2041", PINHU_ERR_MSG],
+        ["2510", TITOI_NOT_EXIST_MSG],
+        ["2511", TITOI_NOT_EXIST_MSG],
+        ["2520", TITOI_ERR_MSG],
+    ]);
+    return HANEMANIJOU_MAP.get(key);
 };

@@ -64,10 +64,6 @@ export default {
   props: ["tontyaWho", "nantyaWho", "syatyaWho", "petyaWho"],
 
   data: () => ({
-    tontyaWho: "",
-    nantyaWho: "",
-    syatyaWho: "",
-    petyaWho: "",
     tenpaiSelected: [],
   }),
 
@@ -80,12 +76,11 @@ export default {
         this.syatyaWho,
         this.petyaWho,
       ];
-      var getTenpaiVal = 0;
-      var lostTenpaiVal = 0;
-      var howManyTenpais = 0;
+      let getTenpaiVal = 0;
+      let lostTenpaiVal = 0;
+      let howManyTenpais = this.tenpaiSelected.length;
 
-      var retTenpaiArr = [];
-      howManyTenpais = this.tenpaiSelected.length;
+      let retTenpaiArr = [];
 
       //全員聴牌・全員ノーテンの場合は0
       if (howManyTenpais === 0 || howManyTenpais === 4) {
@@ -100,9 +95,11 @@ export default {
       //ノーテン者が支払う聴牌料
       lostTenpaiVal = TOTAL_TENPAI_VAL / (4 - howManyTenpais);
 
+      const memberKey = ["first", "second", "third", "fourth"];
       for (let i = 0; i < 4; i++) {
-        var plus = 0;
-        var minus = 0;
+        let plus = 0;
+        let minus = 0;
+        let nameKey = memberKey[i];
 
         if (this.tenpaiSelected.includes(MEMBER[i])) {
           plus = getTenpaiVal;
@@ -110,7 +107,7 @@ export default {
           minus = lostTenpaiVal;
         }
 
-        retTenpaiArr.push({ plusVal: plus, minusVal: minus });
+        retTenpaiArr.push({ name: nameKey, plusVal: plus, minusVal: minus });
       }
 
       //選択値をクリア

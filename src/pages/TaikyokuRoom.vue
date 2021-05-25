@@ -71,11 +71,16 @@
                     </v-col>
                   </v-row>
                   <v-divider class="mt-6 mb-8"></v-divider>
-                  <v-row justify="center" dense>
+                  <v-row
+                    justify="center"
+                    dense
+                    v-for="label in calcVarLbArr"
+                    :key="label"
+                  >
                     <v-col>
                       <v-text-field
-                        v-model="editItem.firstScore"
-                        :label="editItem.firstName"
+                        v-model="calcuVar[label]['score']"
+                        :label="calcuVar[label]['name']"
                       ></v-text-field>
                     </v-col>
                     <v-col>
@@ -86,119 +91,20 @@
                           color="indigo"
                           dark
                           class="mt-4"
-                          @click="reach(editItem, '1')"
+                          @click="reach(label)"
                           >立直</v-btn
                         >
                       </div>
                     </v-col>
                     <v-col>
                       <v-text-field
-                        v-model="calcuVar.eastPlus"
+                        v-model="calcuVar[label]['plus']"
                         label="＋"
                       ></v-text-field>
                     </v-col>
                     <v-col>
                       <v-text-field
-                        v-model="calcuVar.eastMinus"
-                        label="-"
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row justify="center" dense>
-                    <v-col>
-                      <v-text-field
-                        v-model="editItem.secondScore"
-                        :label="editItem.secondName"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <div align="center">
-                        <v-btn
-                          rounded
-                          small
-                          color="indigo"
-                          dark
-                          class="mt-4"
-                          @click="reach(editItem, '2')"
-                          >立直</v-btn
-                        >
-                      </div>
-                    </v-col>
-                    <v-col>
-                      <v-text-field
-                        v-model="calcuVar.southPlus"
-                        label="＋"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <v-text-field
-                        v-model="calcuVar.southMinus"
-                        label="-"
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row justify="center" dense>
-                    <v-col>
-                      <v-text-field
-                        v-model="editItem.thirdScore"
-                        :label="editItem.thirdName"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <div align="center">
-                        <v-btn
-                          rounded
-                          small
-                          color="indigo"
-                          dark
-                          class="mt-4"
-                          @click="reach(editItem, '3')"
-                          >立直</v-btn
-                        >
-                      </div>
-                    </v-col>
-                    <v-col>
-                      <v-text-field
-                        v-model="calcuVar.westPlus"
-                        label="＋"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <v-text-field
-                        v-model="calcuVar.westMinus"
-                        label="-"
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row justify="center" dense>
-                    <v-col>
-                      <v-text-field
-                        v-model="editItem.fourthScore"
-                        :label="editItem.fourthName"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <div align="center">
-                        <v-btn
-                          rounded
-                          small
-                          color="indigo"
-                          dark
-                          class="mt-4"
-                          @click="reach(editItem, '4')"
-                          >立直</v-btn
-                        >
-                      </div>
-                    </v-col>
-                    <v-col>
-                      <v-text-field
-                        v-model="calcuVar.northPlus"
-                        label="＋"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <v-text-field
-                        v-model="calcuVar.northMinus"
+                        v-model="calcuVar[label]['minus']"
                         label="-"
                       ></v-text-field>
                     </v-col>
@@ -214,11 +120,7 @@
                   <v-icon>fas fa-history</v-icon>
                 </v-btn>
                 <v-spacer></v-spacer>
-                <v-btn
-                  text
-                  color="indigo"
-                  dark
-                  @click="liquidation(editItem, calcuVar)"
+                <v-btn text color="indigo" dark @click="liquidation"
                   >清算</v-btn
                 >
               </v-card-actions>
@@ -267,15 +169,12 @@ export default {
     shiharaiNin: "",
     horashaList: [],
     shiharaiNinList: [],
+    calcVarLbArr: ["first", "second", "third", "fourth"],
     calcuVar: {
-      eastPlus: 0,
-      eastMinus: 0,
-      southPlus: 0,
-      southMinus: 0,
-      westPlus: 0,
-      westMinus: 0,
-      northPlus: 0,
-      northMinus: 0,
+      first: { name: "", score: 0, plus: 0, minus: 0 },
+      second: { name: "", score: 0, plus: 0, minus: 0 },
+      third: { name: "", score: 0, plus: 0, minus: 0 },
+      fourth: { name: "", score: 0, plus: 0, minus: 0 },
     },
     tokutenInfoList: [],
     horaHistories: [
@@ -317,52 +216,35 @@ export default {
     this.shiharaiNin = "All";
     this.horashaList = menber;
     this.shiharaiNinList = ["All", ...menber];
+    this.calcuVar.first.name = this.editItem.firstName;
+    this.calcuVar.first.score = this.editItem.firstScore;
+    this.calcuVar.second.name = this.editItem.secondName;
+    this.calcuVar.second.score = this.editItem.secondScore;
+    this.calcuVar.third.name = this.editItem.thirdName;
+    this.calcuVar.third.score = this.editItem.thirdScore;
+    this.calcuVar.fourth.name = this.editItem.fourthName;
+    this.calcuVar.fourth.score = this.editItem.fourthScore;
   },
   methods: {
     changeHonba(honba) {
       this.honba = honba;
     },
 
-    reach(item, who) {
+    reach(who) {
       const reachRyou = 1000;
       this.reachBou += 1;
-
-      if (who === "1") {
-        item.firstScore -= reachRyou;
-      } else if (who === "2") {
-        item.secondScore -= reachRyou;
-      } else if (who === "3") {
-        item.thirdScore -= reachRyou;
-      } else {
-        item.fourthScore -= reachRyou;
-      }
+      this.calcVar[who].score -= reachRyou;
     },
 
-    liquidation(item, plusMinus) {
-      item.firstScore += MAHJAN_FUNC.liquidationMain(
-        plusMinus.eastPlus,
-        plusMinus.eastMinus
-      );
-      plusMinus.eastPlus = 0;
-      plusMinus.eastMinus = 0;
-      item.secondScore += MAHJAN_FUNC.liquidationMain(
-        plusMinus.southPlus,
-        plusMinus.southMinus
-      );
-      plusMinus.southPlus = 0;
-      plusMinus.southMinus = 0;
-      item.thirdScore += MAHJAN_FUNC.liquidationMain(
-        plusMinus.westPlus,
-        plusMinus.westMinus
-      );
-      plusMinus.westPlus = 0;
-      plusMinus.westMinus = 0;
-      item.fourthScore += MAHJAN_FUNC.liquidationMain(
-        plusMinus.northPlus,
-        plusMinus.northMinus
-      );
-      plusMinus.northPlus = 0;
-      plusMinus.northMinus = 0;
+    liquidation() {
+      this.calcVarLbArr.map((label) => {
+        this.calcuVar[label]["score"] += MAHJAN_FUNC.liquidationMain(
+          this.calcuVar[label]["plus"],
+          this.calcuVar[label]["minus"]
+        );
+        this.calcuVar[label]["plus"] = 0;
+        this.calcuVar[label]["minus"] = 0;
+      });
       this.reachBou = 0;
     },
     saveBattleResult() {
@@ -379,7 +261,19 @@ export default {
     reverseDoDispHistory() {
       this.doDispHistory = !this.doDispHistory;
     },
+    //ノーテン罰符の計算
+    deployTokutenTenpai(retTenpaiArr) {
+      this.calcuVar.eastPlus = retTenpaiArr[0]["plusVal"];
+      this.calcuVar.eastMinus = retTenpaiArr[0]["minusVal"];
+      this.calcuVar.southPlus = retTenpaiArr[1]["plusVal"];
+      this.calcuVar.southMinus = retTenpaiArr[1]["minusVal"];
+      this.calcuVar.westPlus = retTenpaiArr[2]["plusVal"];
+      this.calcuVar.westMinus = retTenpaiArr[2]["minusVal"];
+      this.calcuVar.northPlus = retTenpaiArr[3]["plusVal"];
+      this.calcuVar.northMinus = retTenpaiArr[3]["minusVal"];
+    },
     /**
+     * 支払用に+ - フォームに値をはめ込んでいく
      * @param addTokuten
      * @param minusTokuten
      * minusTokuten {
@@ -389,7 +283,7 @@ export default {
      * て感じ。ツモのときだけこの形で返してくる。
      * ロンの時はminusTokutenにだけ値が入ってる。
      */
-    deployTokutenResut(addTokuten, minusTokuten) {
+    deployTokutenResult(addTokuten, minusTokuten) {
       const isHoraFirstName = this.horasha === this.editItem.firstName;
       const isHoraSecondName = this.horasha === this.editItem.secondName;
       const isHoraThirdName = this.horasha === this.editItem.thirdName;
@@ -500,15 +394,6 @@ export default {
         }
       }
     },
-    /**
-     * 計算自体は得点計算機能がしてくれる。
-     * で、結果を受け取る。
-     * まず、+になる人を探す。→麻雀でダブロンを除けは一度に上がれるのは一人だけなので、
-     * 清算を一人ずつすればいい。
-     * なので、まずは和了者の得点のところを+にしてあげる。
-     * 次に、支払い人のところに-をセットしないといけない。
-     * ただし、Allの場合は、和了者以外全員が-になるので、探索が必要になる。
-     */
   },
 };
 </script>
