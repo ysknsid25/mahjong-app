@@ -1,4 +1,5 @@
 export const noteUrl = "https://note.com/mahjanager";
+export const googleFormUrl = "https://forms.gle/516aKVUFosamNFFb6";
 
 const getTweetUrl = () => {
     const twitterUtl = "https://twitter.com/intent/tweet?";

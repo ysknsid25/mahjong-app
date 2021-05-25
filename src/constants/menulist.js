@@ -1,4 +1,4 @@
-import { noteUrl, tweetUrl } from "./links";
+import { noteUrl, tweetUrl, googleFormUrl } from "./links";
 
 export const menulist = [
     {
@@ -21,16 +21,16 @@ export const menulist = [
     },
     {
         name: "Feedback",
-        icon: "fas fa-comment-dots",
+        icon: "far fa-clipboard",
         iconColor: "#191970",
-        url: "Feedback",
+        url: googleFormUrl,
     },
     {
         name: "Share Tweet",
         icon: "fab fa-twitter",
         iconColor: "#1DA1F2",
         url: tweetUrl,
-    }, //リンクはtweetUrlから取得する
+    },
     {
         name: "Release Note",
         icon: "fas fa-sticky-note",
