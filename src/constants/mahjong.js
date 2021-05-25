@@ -34,12 +34,7 @@ export const TON_BA = 0;
 export const NAN_BA = 1;
 export const SYA_BA = 2;
 export const PE_BA = 3;
-export const BA_VALUES = [
-    { label: "東", value: TON_BA },
-    { label: "南", value: NAN_BA },
-    { label: "西", value: SYA_BA },
-    { label: "北", value: PE_BA },
-];
+export const BA_VALUES = ["東", "南", "西", "北"];
 
 export const KYOKU_VALUES = ["1", "2", "3", "4"];
 
@@ -265,8 +260,10 @@ export const getTokuten = (
     const kyoutaku = reachBou * 1000;
     const totalBaRyou = BA_RYOU * basuu;
     let tokuten = {
-        oyaTokuten: 0,
-        koTokuten: 0,
+        tumoOyaShiharai: 0,
+        tumoKoShiharai: 0,
+        oyaShiharai: 0,
+        koShiharai: 0,
         kyotaku: 0,
     };
     if (manganIjouKey < MANGAN_MIMAN) {
@@ -278,6 +275,7 @@ export const getTokuten = (
         );
     } else {
         tokuten = getTokutenManganIjou(
+            oyako,
             tokutenKeyManganIjou,
             totalBaRyou,
             agari
@@ -294,16 +292,21 @@ export const getTokutenManganMiman = (key, oyako, totalBaRyou, agari) => {
     if (oyako == OYA) {
         tokuten = OYANOTOKUTEN_MAP.get(key);
     }
-    const retTokuten = getTokutenContainBaryou(tokuten, baryou);
+    const retTokuten = getTokutenContainBaryou(oyako, agari, tokuten, baryou);
     return retTokuten;
 };
 
 /**
  * 満貫以上の得点を計算する
  */
-export const getTokutenManganIjou = (key, totalBaRyou, agari) => {
+export const getTokutenManganIjou = (oyako, key, totalBaRyou, agari) => {
     const baryou = getBaryou(totalBaRyou, agari);
-    const tokuten = getTokutenContainBaryou(MANGANIJOU_MAP.get(key), baryou);
+    const tokuten = getTokutenContainBaryou(
+        oyako,
+        agari,
+        MANGANIJOU_MAP.get(key),
+        baryou
+    );
     return tokuten;
 };
 
@@ -313,23 +316,34 @@ export const getTokutenManganIjou = (key, totalBaRyou, agari) => {
  * @param baryou
  * @returns
  */
-const getTokutenContainBaryou = (tokuten, baryou) => {
+const getTokutenContainBaryou = (oyako, agari, tokuten, baryou) => {
     let tokutenArr = [];
     if (tokuten.indexOf(",") > -1) {
         tokutenArr = tokuten.split(",");
     }
-    let retTokuten = {
-        oyaTokuten: 0,
-        koTokuten: 0,
+    let retshiharai = {
+        tumoOyaShiharai: 0,
+        tumoKoShiharai: 0,
+        oyaShiharai: 0,
+        koShiharai: 0,
         kyotaku: 0,
     };
     if (tokutenArr.length > 1) {
-        retTokuten.oyaTokuten = parseInt(tokutenArr[1]) + baryou;
-        retTokuten.koTokuten = parseInt(tokutenArr[0]) + baryou;
+        //子のツモ
+        retshiharai.tumoOyaShiharai = parseInt(tokutenArr[1]) + baryou;
+        retshiharai.tumoKoShiharai = parseInt(tokutenArr[0]) + baryou;
     } else {
-        retTokuten.oyaTokuten = parseInt(tokuten) + baryou;
+        if (agari === TUMO) {
+            retshiharai.tumoKoShiharai = parseInt(tokuten) + baryou;
+        } else {
+            if (oyako === OYA) {
+                retshiharai.koShiharai = parseInt(tokuten) + baryou;
+            } else {
+                retshiharai.oyaShiharai = parseInt(tokuten) + baryou;
+            }
+        }
     }
-    return retTokuten;
+    return retshiharai;
 };
 
 //場料を計算します

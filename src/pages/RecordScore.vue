@@ -15,6 +15,7 @@
         >
           <template v-slot:top>
             <v-toolbar flat color="white">
+              <v-toolbar-title>対局履歴</v-toolbar-title>
               <v-spacer></v-spacer>
               <MakeNewRoomDialog
                 :maxBattleNo="scores[scores.length - 1]['battleNo']"
@@ -211,16 +212,21 @@ export default {
     headers: [
       {
         text: "No",
-        align: "start",
+        align: "center",
         value: "battleNo",
         sortable: false,
       },
-      { text: "Actions", value: "actions", sortable: false },
-      { text: "YMD", value: "ymd" },
-      { text: "東家(Your)", value: "firstScore", sortable: false },
-      { text: "南家", value: "secondScore", sortable: false },
-      { text: "西家", value: "thirdScore", sortable: false },
-      { text: "北家", value: "fourthScore", sortable: false },
+      { text: "Actions", align: "center", value: "actions", sortable: false },
+      { text: "YMD", align: "center", value: "ymd", sortable: false },
+      {
+        text: "東家(Your)",
+        align: "center",
+        value: "firstScore",
+        sortable: false,
+      },
+      { text: "南家", align: "center", value: "secondScore", sortable: false },
+      { text: "西家", align: "center", value: "thirdScore", sortable: false },
+      { text: "北家", align: "center", value: "fourthScore", sortable: false },
     ],
     scores: [
       {
@@ -301,7 +307,7 @@ export default {
     doDispHistory: false,
     tokuten: 0,
     reachBou: 0,
-    ba: 0,
+    ba: "東",
     baItems: MAHJAN_FUNC.BA_VALUES,
     kyoku: "1",
     kyokuItems: MAHJAN_FUNC.KYOKU_VALUES,
@@ -359,7 +365,7 @@ export default {
       this.playingRoom = true;
     },
     initTaikyoku(item) {
-      this.ba = 0;
+      this.ba = "東";
       this.kyoku = "1";
       this.honba = "";
       const menber = [
@@ -382,10 +388,13 @@ export default {
       this.calcuVar.fourth.name = item.fourthName;
       this.calcuVar.fourth.score = item.fourthScore;
     },
-    deleteItem(item) {
+
+    deleteItem() {
+      /*
       const index = this.scores.indexOf(item);
       confirm("Are you sure you want to delete past Room?") &&
         this.scores.splice(index, 1);
+        */
     },
     reach(who) {
       const reachRyou = 1000;
@@ -432,10 +441,22 @@ export default {
         this.calcuVar[tenpaiInfo.name].minus = tenpaiInfo["minusVal"];
       });
       this.reverseDoCalcurate();
-      this.subtraction();
+      //this.subtraction();
     },
     isSamePerson() {
       return this.shiharaiNin === this.horasha;
+    },
+    makeHoraHistoryInfo(yakuInfo) {
+      const nextNo = this.horaHistories.length + 1;
+      const honba = this.honba === "" ? this.honba : this.honba + "本場";
+      const time = this.ba + this.kyoku + "局" + honba;
+      const fromTo = this.horasha + " -> " + this.shiharaiNin;
+      return {
+        id: nextNo,
+        time: time,
+        fromTo: fromTo,
+        yaku: yakuInfo.join(","),
+      };
     },
     deployTokutenResult(horaInfo) {
       const agari =
@@ -451,128 +472,49 @@ export default {
       if (typeof isInvalidHuHan !== "undefined") {
         alert(isInvalidHuHan);
         return;
-      } else {
-        const tokuten = MAHJAN_FUNC.getTokuten(
-          basuu,
-          this.reachBou,
-          horaInfo["hu"] + horaInfo["han"],
-          horaInfo["han"],
-          oyako,
-          agari
-        );
-        console.log(JSON.stringify(tokuten));
       }
-      /*
-      const isHoraFirstName = this.horasha === this.editItem.firstName;
-      const isHoraSecondName = this.horasha === this.editItem.secondName;
-      const isHoraThirdName = this.horasha === this.editItem.thirdName;
-
-      const isOyaFirstName = this.oya === this.editItem.firstName;
-      const isOyaSecondName = this.oya === this.editItem.secondName;
-      const isOyaThirdName = this.oya === this.editItem.thirdName;
-      const isOyaFourthName = this.oya === this.editItem.fourthName;
-
-      //+になる人を探して、得点を加算
-      if (isHoraFirstName) {
-        this.calcuVar.eastPlus = addTokuten;
-        this.calcuVar.eastMinus = 0;
-      } else if (isHoraSecondName) {
-        this.calcuVar.southPlus = addTokuten;
-        this.calcuVar.southMinus = 0;
-      } else if (isHoraThirdName) {
-        this.calcuVar.westPlus = addTokuten;
-        this.calcuVar.westMinus = 0;
-      } else {
-        this.calcuVar.northPlus = addTokuten;
-        this.calcuVar.northMinus = 0;
+      if (horaInfo.yakuInfo.length > 0) {
+        const horaHistoryInfo = this.makeHoraHistoryInfo(horaInfo.yakuInfo);
+        this.horaHistories.push(horaHistoryInfo);
       }
-      //ロンかツモかで支払い方法が分岐
-      if (this.shiharaiNin === "All") {
-        if (isHoraFirstName) {
-          if (isOyaSecondName) {
-            this.calcuVar.southMinus = minusTokuten["minusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
-          } else if (isOyaThirdName) {
-            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["minusTokuten"];
-            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
-          } else if (isOyaFourthName) {
-            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.northMinus = minusTokuten["minusTokuten"];
-          } else {
-            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
-          }
-        } else if (isHoraSecondName) {
-          if (isOyaFirstName) {
-            this.calcuVar.eastMinus = minusTokuten["minusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
-          } else if (isOyaThirdName) {
-            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["minusTokuten"];
-            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
-          } else if (isOyaFourthName) {
-            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.northMinus = minusTokuten["minusTokuten"];
-          } else {
-            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
-          }
-        } else if (isHoraThirdName) {
-          if (isOyaFirstName) {
-            this.calcuVar.eastMinus = minusTokuten["minusTokuten"];
-            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
-          } else if (isOyaSecondName) {
-            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.southMinus = minusTokuten["minusTokuten"];
-            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
-          } else if (isOyaFourthName) {
-            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.northMinus = minusTokuten["minusTokuten"];
-          } else {
-            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.northMinus = minusTokuten["koMinusTokuten"];
-          }
-        } else {
-          if (isOyaFirstName) {
-            this.calcuVar.eastMinus = minusTokuten["minusTokuten"];
-            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
-          } else if (isOyaSecondName) {
-            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.southMinus = minusTokuten["minusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
-          } else if (isOyaThirdName) {
-            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.southMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["minusTokuten"];
-          } else {
-            this.calcuVar.eastMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
-            this.calcuVar.westMinus = minusTokuten["koMinusTokuten"];
-          }
+      const tokuten = MAHJAN_FUNC.getTokuten(
+        basuu,
+        this.reachBou,
+        horaInfo["hu"] + horaInfo["han"],
+        horaInfo["han"],
+        oyako,
+        agari
+      );
+      console.log(JSON.stringify(tokuten));
+      this.calcVarLbArr.map((label) => {
+        const isHorasha = this.horasha === this.calcuVar[label].name;
+        const isTumo = this.shiharaiNin === "All";
+        const isOya = this.calcuVar[label].name === this.oya;
+        const isHojusya = this.shiharaiNin === this.calcuVar[label].name;
+        //自摸は上がった人以外全員が支払人だけど、ロンは特定の１人だけが支払人
+        if (isHorasha && isTumo && isOya) {
+          this.calcuVar[label].plus =
+            tokuten.tumoKoShiharai * 3 + tokuten.kyotaku;
+        } else if (isHorasha && isTumo && !isOya) {
+          this.calcuVar[label].plus =
+            tokuten.tumoOyaShiharai +
+            tokuten.tumoKoShiharai * 2 +
+            tokuten.kyotaku;
+        } else if (isHorasha && !isTumo && isOya) {
+          this.calcuVar[label].plus = tokuten.koShiharai + tokuten.kyotaku;
+        } else if (isHorasha && !isTumo && !isOya) {
+          this.calcuVar[label].plus = tokuten.oyaShiharai + tokuten.kyotaku;
+        } else if (!isHorasha && isTumo && isOya) {
+          this.calcuVar[label].minus = tokuten.tumoOyaShiharai;
+        } else if (!isHorasha && isTumo && !isOya) {
+          this.calcuVar[label].minus = tokuten.tumoKoShiharai;
+        } else if (!isHorasha && !isTumo && isOya && isHojusya) {
+          this.calcuVar[label].minus = tokuten.oyaShiharai;
+        } else if (!isHorasha && !isTumo && !isOya && isHojusya) {
+          this.calcuVar[label].minus = tokuten.koShiharai;
         }
-      } else {
-        if (!isHoraFirstName) {
-          this.calcuVar.eastMinus = minusTokuten["minusTokuten"];
-        } else if (!isHoraSecondName) {
-          this.calcuVar.southMinus = minusTokuten["minusTokuten"];
-        } else if (!isHoraThirdName) {
-          this.calcuVar.westMinus = minusTokuten["minusTokuten"];
-        } else {
-          this.calcuVar.northMinus = minusTokuten["minusTokuten"];
-        }
-      }
-      */
+      });
+      this.doCalcurate = !this.doCalcurate;
     },
   },
 };

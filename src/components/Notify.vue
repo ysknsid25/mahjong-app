@@ -83,7 +83,11 @@ export default {
   methods: {
     async getNotifies() {
       this.loading = true;
-      this.notifies = await getReleaseInfoArr();
+      this.notifies = this.$store.getters.getNotifyInfo;
+      if (this.notifies.length === 0) {
+        this.notifies = await getReleaseInfoArr();
+        this.$store.commit("setNotifyInfo", this.notifies);
+      }
       this.isExistNotify = this.notifies.length > 0;
       this.loading = false;
     },
