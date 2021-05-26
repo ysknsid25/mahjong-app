@@ -84,7 +84,7 @@ export default {
 
       //全員聴牌・全員ノーテンの場合は0
       if (howManyTenpais === 0 || howManyTenpais === 4) {
-        this.$emit("close-from-Tenpai", []);
+        this.$emit("close-from-Tenpai", retTenpaiArr);
         return;
       }
 
