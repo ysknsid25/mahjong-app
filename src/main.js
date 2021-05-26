@@ -5,8 +5,10 @@ import "./registerServiceWorker";
 import "@fortawesome/fontawesome-free/css/all.css";
 import router from "./router";
 import store from "./plugins/store";
+import { anl } from "./plugins/firebase";
 
 Vue.config.productionTip = false;
+Vue.prototype.$analytics = anl;
 
 new Vue({
     store,
