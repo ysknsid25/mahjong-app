@@ -18,7 +18,12 @@
             ></v-progress-circular>
           </div>
           <div v-if="!loading">
-            <v-timeline align-top dense class="ml-8 mb-2">
+            <v-timeline
+              align-top
+              dense
+              class="ml-8 mb-2"
+              v-if="histories.length > 0"
+            >
               <v-timeline-item
                 v-for="history in histories"
                 :key="history.id"
@@ -33,6 +38,9 @@
                 </div>
               </v-timeline-item>
             </v-timeline>
+            <div align="center" class="mt-4" v-if="!histories.length > 0">
+              和了履歴はまだありません。
+            </div>
           </div>
         </v-card-text>
         <v-divider></v-divider>
