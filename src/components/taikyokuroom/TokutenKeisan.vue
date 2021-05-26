@@ -11,7 +11,7 @@
           <v-dialog v-model="huKeisanDialog" max-width="800">
             <HuKeisan @close-from-Hukeisan="refreshHuCalcResult"></HuKeisan>
           </v-dialog>
-          <v-dialog v-model="hanKeisanDialog" max-width="800">
+          <v-dialog persistent v-model="hanKeisanDialog" max-width="800">
             <HanKeisan @close-from-HanKeisan="refreshHanCalcResult"></HanKeisan>
           </v-dialog>
           <v-dialog v-model="tenpaiDialog" max-width="800">
@@ -115,7 +115,7 @@ export default {
     //子コンポーネントから返ってきた翻の値をコンボにセットする
     setHanVal(hanVal) {
       if (hanVal < 5) {
-        this.han = hanVal;
+        this.han = String(hanVal);
       } else if (hanVal == 5) {
         this.han = "5";
       } else if (hanVal == 6 || hanVal == 7) {
@@ -129,11 +129,8 @@ export default {
       }
     },
     refreshTenpaiCalcResult(tenpaiValArr) {
-      if (tenpaiValArr.length > 0) {
-        this.tenpaiDialog = false;
-        this.$emit("back-tokuten-top-tenpai", tenpaiValArr);
-      }
       this.tenpaiDialog = false;
+      this.$emit("back-tokuten-top-tenpai", tenpaiValArr);
     },
 
     changeHu(hu) {
