@@ -50,6 +50,7 @@
   </v-dialog>
 </template>
 <script>
+import { createActionHistory } from "../firestoreaccess/ActionHistory";
 export default {
   name: "NameRegistCard",
   props: ["initUserName"],
@@ -64,7 +65,8 @@ export default {
   methods: {
     doUpdateUserName() {
       this.sending = true;
-      //await createReleaseInfo(releaseInfo);
+      //@@ユーザー名を更新
+      createActionHistory("Update User Name", "ユーザー名を更新しました。");
       this.clear();
       this.sending = false;
       this.dialog = false;

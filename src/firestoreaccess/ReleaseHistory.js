@@ -1,4 +1,4 @@
-import { db } from "../plugins/firebase";
+import { db, anl } from "../plugins/firebase";
 import { getKbnInfo } from "../constants/cmnfunc";
 import { infoTypeKbn } from "../constants/kbn";
 
@@ -22,7 +22,10 @@ export const createReleaseInfo = async (releaseInfo) => {
             return true;
         })
         .catch((error) => {
-            console.error("@@Error createReleaseInfo: ", error);
+            anl.logEvent("errorInfo", {
+                function: "createReleaseInfo",
+                msg: error,
+            });
             return false;
         });
 };
@@ -58,7 +61,7 @@ export const getReleaseInfoArr = async () => {
             });
         })
         .catch((error) => {
-            console.log("@@Error ReleaseInfo: " + error);
+            anl.logEvent("errorInfo", { function: "ReleaseInfo", msg: error });
         });
     return retArr;
 };

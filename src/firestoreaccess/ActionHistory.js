@@ -1,4 +1,4 @@
-import { db } from "../plugins/firebase";
+import { db, anl } from "../plugins/firebase";
 import { getTimeStamp } from "../constants/cmnfunc";
 
 export const COLLECTION_ACTION = db.collection("ActionHistory");
@@ -14,6 +14,7 @@ export const createActionHistory = async (action, message) => {
         action: action,
         datetime: getTimeStamp(),
         message: message,
+        //@@ユーザーIDを認証情報から取得する
         userId: "hoge",
     };
     actionHistoryRef.set(actionInfo);
@@ -41,7 +42,10 @@ export const getActionHistoryArr = async (userId) => {
             });
         })
         .catch((error) => {
-            console.log("@@Error ReleaseInfo: " + error);
+            anl.logEvent("errorInfo", {
+                function: "getActionHistoryArr",
+                msg: error,
+            });
         });
     return retArr;
 };

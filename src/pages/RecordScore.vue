@@ -199,6 +199,7 @@ import MakeNewRoomDialog from "../components/MakeNewRoomDialog";
 import * as MAHJAN_FUNC from "../constants/mahjong";
 import TokutenKeisan from "../components/taikyokuroom/TokutenKeisan";
 import HoraHistoy from "../components/taikyokuroom/HoraHistory";
+import { createActionHistory } from "../firestoreaccess/ActionHistory";
 
 export default {
   name: "RecordScore",
@@ -358,6 +359,8 @@ export default {
   methods: {
     saveNewRoom(val) {
       this.roomTable = false;
+      //対局室情報を生成する
+      createActionHistory("Make New Room", "新規対局記録を作成しました。");
       this.scores.push(val);
     },
     editItem(item) {
@@ -391,6 +394,8 @@ export default {
     },
 
     deleteItem() {
+      //@@対局情報を削除
+      createActionHistory("Delete Room", "対局記録を削除しました。");
       /*
       const index = this.scores.indexOf(item);
       confirm("Are you sure you want to delete past Room?") &&
@@ -442,7 +447,8 @@ export default {
 
     exitRoom() {
       this.playingRoom = false;
-      //登録処理
+      //@@ 対局情報の保存
+      createActionHistory("Save Room", "対局記録を更新しました。");
       this.roomTable = true;
     },
     reverseDoCalcurate() {
@@ -531,7 +537,6 @@ export default {
         oyako,
         agari
       );
-      console.log(JSON.stringify(tokuten));
       this.calcVarLbArr.map((label) => {
         const isHorasha = this.horasha === this.calcuVar[label].name;
         const isTumo = this.shiharaiNin === "All";

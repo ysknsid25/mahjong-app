@@ -84,7 +84,6 @@ export default {
     async getNotifies() {
       this.loading = true;
       this.notifies = this.$store.getters.getNotifyInfo;
-      this.$analytics.logEvent("getNotificationInfo");
       if (this.notifies.length === 0) {
         this.notifies = await getReleaseInfoArr();
         this.$store.commit("setNotifyInfo", this.notifies);
