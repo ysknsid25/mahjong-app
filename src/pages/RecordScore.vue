@@ -168,9 +168,9 @@
                         <v-icon>fas fa-history</v-icon>
                       </v-btn>
                       <v-spacer></v-spacer>
-                      <v-btn text color="indigo" dark @click="liquidation"
-                        >清算</v-btn
-                      >
+                      <v-btn icon text color="indigo" dark @click="liquidation">
+                        <v-icon>fas fa-save</v-icon>
+                      </v-btn>
                     </v-card-actions>
                   </v-card>
                 </div>
@@ -352,6 +352,7 @@ export default {
         yaku: "四暗刻",
       },
     ],
+    kyokuKekkaInfo: "",
   }),
 
   methods: {
@@ -404,9 +405,21 @@ export default {
     liquidation() {
       if (this.isSamePerson()) {
         alert("和了者と支払人が同一人物です。");
-      } else {
+      } else if (confirm(this.getConfirmMessage())) {
         this.subtraction();
         this.reachBou = 0;
+      }
+    },
+    getConfirmMessage() {
+      const isInputYakuInfo =
+        this.kyokuKekkaInfo !== "" &&
+        typeof this.kyokuKekkaInfo !== "undefined";
+      const baseMsg =
+        "現在の入力値でこの局の結果を保存します。\r\nよろしいですか？\r\n";
+      if (isInputYakuInfo) {
+        return baseMsg + "結果 = " + this.kyokuKekkaInfo.yaku;
+      } else {
+        return baseMsg;
       }
     },
     subtraction() {
@@ -418,7 +431,15 @@ export default {
         this.calcuVar[label]["plus"] = 0;
         this.calcuVar[label]["minus"] = 0;
       });
+      if (
+        this.kyokuKekkaInfo === "" ||
+        typeof this.kyokuKekkaInfo == "undefined"
+      ) {
+        this.horaHistories.push(this.kyokuKekkaInfo);
+      }
+      this.kyokuKekkaInfo = "";
     },
+
     exitRoom() {
       this.playingRoom = false;
       //登録処理
@@ -434,12 +455,37 @@ export default {
     reverseDoDispHistory() {
       this.doDispHistory = !this.doDispHistory;
     },
-    //ノーテン罰符の計算
+    //ノーテン罰符の計算と記録
     deployTokutenTenpai(retTenpaiArr) {
       retTenpaiArr.map((tenpaiInfo) => {
         this.calcuVar[tenpaiInfo.name].plus = tenpaiInfo["plusVal"];
         this.calcuVar[tenpaiInfo.name].minus = tenpaiInfo["minusVal"];
       });
+      const bappuUketori = retTenpaiArr.filter(
+        (tenpaiInfo) => tenpaiInfo["plusVal"] > 0
+      );
+      const bappuShiharai = retTenpaiArr.filter(
+        (tenpaiInfo) => tenpaiInfo["minusVal"] > 0
+      );
+      const nextNo = this.horaHistories.length + 1;
+      const honba = this.honba === "" ? this.honba : this.honba + "本場";
+      const time = this.ba + this.kyoku + "局" + honba;
+      let fromTo = "支払なし";
+      if (bappuUketori.length > 0) {
+        const from = bappuShiharai
+          .map((tenpaiInfo) => this.calcuVar[tenpaiInfo.name].name)
+          .join(",");
+        const to = bappuUketori
+          .map((tenpaiInfo) => this.calcuVar[tenpaiInfo.name].name)
+          .join(",");
+        fromTo = from + " -> " + to;
+      }
+      this.kyokuKekkaInfo = {
+        id: nextNo,
+        time: time,
+        fromTo: fromTo,
+        yaku: "流局",
+      };
       this.reverseDoCalcurate();
       //this.subtraction();
     },
@@ -451,7 +497,7 @@ export default {
       const honba = this.honba === "" ? this.honba : this.honba + "本場";
       const time = this.ba + this.kyoku + "局" + honba;
       const fromTo = this.horasha + " -> " + this.shiharaiNin;
-      return {
+      this.kyokuKekkaInfo = {
         id: nextNo,
         time: time,
         fromTo: fromTo,
