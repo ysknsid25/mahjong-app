@@ -97,9 +97,7 @@
     <v-divider></v-divider>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="indigo" text @click="$emit('close-from-HanKeisan', 1)"
-        >Cancel</v-btn
-      >
+      <v-btn color="indigo" text @click="exit">Cancel</v-btn>
       <v-btn color="indigo" text @click="doCount">OK</v-btn>
     </v-card-actions>
   </v-card>
@@ -195,7 +193,14 @@ export default {
       this.clearScreen(this);
       this.$emit("close-from-HanKeisan", retVal);
     },
-
+    exit() {
+      const retVal = {
+        hanTotal: 1,
+        selectedYau: [],
+      };
+      this.clearScreen(this);
+      this.$emit("close-from-HanKeisan", retVal);
+    },
     clearScreen() {
       this.itihanSelected = [];
       this.ryanhanSelected = [];
