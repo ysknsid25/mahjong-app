@@ -24,22 +24,27 @@
             ></v-progress-circular>
           </div>
           <div v-if="!loading">
-            <div class="font-weight-bold ml-8 mb-2">History</div>
-            <v-timeline align-top dense>
-              <v-timeline-item
-                v-for="history in histories"
-                :key="history.time"
-                :color="history.color"
-                small
-              >
-                <div>
-                  <div class="font-weight-normal">
-                    <strong>{{ history.title }}</strong> @{{ history.time }}
+            <div v-if="histories.length > 0">
+              <div class="font-weight-bold ml-8 mb-2">History</div>
+              <v-timeline align-top dense>
+                <v-timeline-item
+                  v-for="history in histories"
+                  :key="history.id"
+                  :color="history.color"
+                  small
+                >
+                  <div>
+                    <div class="font-weight-normal">
+                      <strong>{{ history.title }}</strong> @{{ history.time }}
+                    </div>
+                    <div>{{ history.message }}</div>
                   </div>
-                  <div>{{ history.message }}</div>
-                </div>
-              </v-timeline-item>
-            </v-timeline>
+                </v-timeline-item>
+              </v-timeline>
+            </div>
+            <div align="center" class="mt-4" v-if="!histories.length > 0">
+              履歴はありません。
+            </div>
           </div>
         </v-card-text>
       </v-card>
@@ -49,6 +54,7 @@
 
 <script>
 import NameRegistCard from "../components/NameRegistCard";
+import { getActionHistoryArr } from "../firestoreaccess/ActionHistory";
 export default {
   name: "Profile",
   components: {
@@ -64,34 +70,18 @@ export default {
         "cabbage-5337431_1280" +
         ".jpg",
     },
-    histories: [
-      {
-        title: "1st",
-        time: "2021/05/19 10:20",
-        message: "Taro, Shiori, Yuki",
-        color: "indigo",
-      },
-      {
-        title: "logined",
-        time: "2021/05/18 23:20",
-        message: "",
-        color: "red",
-      },
-      {
-        title: "1st",
-        time: "2021/05/17 18:20",
-        message: "Sena, Yuko, Yuki",
-        color: "indigo",
-      },
-      {
-        title: "1st",
-        time: "2021/05/17 18:19",
-        message: "Sena, Yuko, Yuki",
-        color: "indigo",
-      },
-    ],
+    histories: [],
   }),
-
-  methods: {},
+  created: function () {
+    this.getUserActionHistory();
+  },
+  methods: {
+    //@@ リアルタイムリスナー。引数をユーザーIDに直す
+    async getUserActionHistory() {
+      this.loading = true;
+      this.histories = await getActionHistoryArr("hoge");
+      this.loading = false;
+    },
+  },
 };
 </script>

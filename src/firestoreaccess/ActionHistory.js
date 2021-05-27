@@ -28,20 +28,25 @@ export const createActionHistory = async (action, message) => {
 export const getActionHistoryArr = async (userId) => {
     let retArr = [];
     await COLLECTION_ACTION.where("userId", "==", userId)
+        .orderBy("datetime", "desc")
         .limit(5)
         .get()
         .then((actionHistorySnapShot) => {
             actionHistorySnapShot.forEach((doc) => {
                 const data = doc.data();
+                const color = data["action"] === "login" ? "red" : "indigo";
                 const tmpObj = {
-                    action: data["action"],
-                    datetime: data["datetime"],
+                    id: doc.id,
+                    title: data["action"],
+                    time: data["datetime"],
                     message: data["message"],
+                    color: color,
                 };
                 retArr.push(tmpObj);
             });
         })
         .catch((error) => {
+            console.log(error);
             anl.logEvent("errorInfo", {
                 function: "getActionHistoryArr",
                 msg: error,

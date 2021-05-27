@@ -5,7 +5,7 @@ export const menulist = [
         name: "DashBoard",
         icon: "fas fa-chart-line",
         iconColor: "#191970",
-        url: "/",
+        url: "Main",
     },
     {
         name: "Record Score",
@@ -41,6 +41,6 @@ export const menulist = [
         name: "Logout",
         icon: "fas fa-sign-out-alt",
         iconColor: "#191970",
-        url: "Top",
+        url: "/Logout",
     },
 ];

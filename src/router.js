@@ -1,16 +1,17 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+import { logout, auth } from "../src/plugins/firebase";
 
 Vue.use(VueRouter);
 
 const routes = [
     {
-        path: "/",
+        path: "/Main",
         name: "Main",
         component: () => import("./pages/main.vue"),
         children: [
             {
-                path: "/",
+                path: "/Main",
                 name: "Dashboard",
                 component: () => import("./pages/Dashboard.vue"),
             },
@@ -33,23 +34,19 @@ const routes = [
                 path: "/Logout",
                 name: "Logout",
                 component: () => import("./pages/Top.vue"),
-                /*
-        meta: { isPublic: true },
-        beforeEnter: function (to, from, next) {
-          localStorage.removeItem("vue_token");
-          Store.commit("logined");
-          Store.commit("crearState");
-          next({ path: '/login' });
-        }
-        */
+                meta: { isPublic: true },
+                beforeEnter: async function(to, from, next) {
+                    await logout();
+                    next({ path: "/" });
+                },
             },
         ],
     },
     {
-        path: "/Top",
+        path: "/",
         name: "Top",
         component: () => import("./pages/Top.vue"),
-        //meta: { isPublic: true }
+        meta: { isPublic: true },
     },
 ];
 
@@ -59,14 +56,18 @@ const router = new VueRouter({
     routes,
 });
 
-/*
-router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => !record.meta.isPublic) && !Store.state.logined) {
-    next({ path: '/login', query: { redirect: to.fullPath }});
-  } else {
-    next();
-  }
+router.beforeEach(async (to, from, next) => {
+    if (to.matched.some((record) => !record.meta.isPublic)) {
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                next();
+            } else {
+                next({ path: "/" });
+            }
+        });
+    } else {
+        next();
+    }
 });
-*/
 
 export default router;
