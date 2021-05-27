@@ -10,15 +10,8 @@
       </v-app-bar-nav-icon>
       <v-toolbar-title>Ma<font color="#B71C1C">hja</font>nager</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn
-        tile
-        color="green darken-4"
-        dark
-        outlined
-        width="130"
-        :href="noteUrl"
-        target="blank"
-        >Release Note</v-btn
+      <v-btn icon color="green darken-4" dark :href="noteUrl">
+        <v-icon>fas fa-sticky-note</v-icon></v-btn
       >
     </v-app-bar>
     <v-container class="mt-10" v-if="!loading">
@@ -48,7 +41,7 @@
           <div align="center">Mahjan × Manager</div>
         </v-col>
       </v-row>
-      <v-row justify="center" class="mt-6">
+      <v-row justify="center">
         <v-col cols="12">
           <div align="center">
             <v-btn
@@ -56,10 +49,10 @@
               tile
               outlined
               color="#1DA1F2"
-              width="150"
+              width="130"
               @click="login"
             >
-              <v-icon class="mr-4">fab fa-twitter</v-icon>
+              <v-icon class="mr-2">fab fa-twitter</v-icon>
               Sign in
             </v-btn>
           </div>
@@ -95,6 +88,7 @@
 <script>
 import { noteUrl } from "../constants/links";
 import { login } from "../plugins/firebase";
+import { authorizeUser } from "../firestoreaccess/Users";
 //import { createActionHistory } from "../firestoreaccess/ActionHistory";
 export default {
   name: "Top",
@@ -107,7 +101,20 @@ export default {
     async login() {
       this.loading = true;
       this.user = await login();
-      this.$router.push("/Main");
+      //ログインエラー時の処理
+      if (this.user.isLoginSuccess) {
+        await authorizeUser(this.user);
+        this.$store.commit(
+          "setAdmin",
+          this.user.uid === "bmLtvvx5TOYJPl08s8PIOavauyv1"
+        );
+        this.$router.push("/Main");
+      } else {
+        this.loading = true;
+        alert("ログイン処理に失敗しました。");
+        this.loading = false;
+        this.$router.push("/");
+      }
     },
   },
 };

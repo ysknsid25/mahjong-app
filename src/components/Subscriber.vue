@@ -73,8 +73,8 @@ import { createReleaseInfo } from "../firestoreaccess/ReleaseHistory";
 import { getTimeStamp } from "../constants/cmnfunc";
 export default {
   name: "Subscriber",
+  props: ["isAdmin"],
   data: () => ({
-    isAdmin: true,
     dialog: false,
     sending: false,
     notifyType: infoTypeKbn,

@@ -8,16 +8,23 @@ export const COLLECTION_ACTION = db.collection("ActionHistory");
  * @param {String} action
  * @param {String} message
  */
-export const createActionHistory = async (action, message) => {
+export const createActionHistory = async (uid, action, message) => {
     const actionHistoryRef = COLLECTION_ACTION.doc();
     const actionInfo = {
         action: action,
         datetime: getTimeStamp(),
         message: message,
-        //@@ユーザーIDを認証情報から取得する
-        userId: "hoge",
+        userId: uid,
     };
-    actionHistoryRef.set(actionInfo);
+    actionHistoryRef
+        .set(actionInfo)
+        .then(() => {})
+        .catch((error) => {
+            anl.logEvent("errorInfo", {
+                function: "createActionHistory",
+                msg: error,
+            });
+        });
 };
 
 /**

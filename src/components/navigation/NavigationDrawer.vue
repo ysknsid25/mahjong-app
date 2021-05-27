@@ -26,7 +26,7 @@
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Ma<font color="#B71C1C">hja</font>nager</v-toolbar-title>
       <v-spacer></v-spacer>
-      <Subscriber></Subscriber>
+      <Subscriber :isAdmin="this.$store.getters.isAdmin"></Subscriber>
       <Notify></Notify>
     </v-app-bar>
   </div>

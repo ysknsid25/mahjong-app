@@ -5,11 +5,13 @@
         <div height="300px">
           <v-card-title class="secondary white--text">
             <v-avatar size="56">
-              <img alt="user" v-bind:src="userInfo.imgPath" />
+              <img alt="user" v-bind:src="userInfo.photoURL" />
             </v-avatar>
-            <p class="ml-3 mt-3">{{ userInfo.name }}</p>
+            <p class="ml-3 mt-3">{{ userInfo.displayName }}</p>
             <v-spacer></v-spacer>
+            <!--
             <NameRegistCard :initUserName="userInfo.name"></NameRegistCard>
+            -->
           </v-card-title>
         </div>
 
@@ -24,7 +26,7 @@
             ></v-progress-circular>
           </div>
           <div v-if="!loading">
-            <div v-if="histories.length > 0">
+            <div v-if="histories.length">
               <div class="font-weight-bold ml-8 mb-2">History</div>
               <v-timeline align-top dense>
                 <v-timeline-item
@@ -42,7 +44,7 @@
                 </v-timeline-item>
               </v-timeline>
             </div>
-            <div align="center" class="mt-4" v-if="!histories.length > 0">
+            <div align="center" class="mt-4" v-if="!histories.length">
               履歴はありません。
             </div>
           </div>
@@ -53,33 +55,36 @@
 </template>
 
 <script>
-import NameRegistCard from "../components/NameRegistCard";
+//import NameRegistCard from "../components/NameRegistCard";
 import { getActionHistoryArr } from "../firestoreaccess/ActionHistory";
+import { getAuthUserInfo } from "../plugins/firebase";
 export default {
   name: "Profile",
+  /*
   components: {
     NameRegistCard,
   },
+  */
   data: () => ({
     loading: false,
-    userInfo: {
-      name: "Daniel Kanemitsu",
-      userId: "cabbage-5337431_1280",
-      imgPath:
-        "https://cdn.pixabay.com/photo/2020/06/24/19/12/" +
-        "cabbage-5337431_1280" +
-        ".jpg",
-    },
+    userInfo: {},
     histories: [],
   }),
-  created: function () {
-    this.getUserActionHistory();
+  created: async function () {
+    this.loading = true;
+    this.userInfo = await getAuthUserInfo();
+    if (this.userInfo === "") {
+      this.$router.push("/Logout");
+    } else {
+      this.histories = await this.getUserActionHistory(this.userInfo.uid);
+    }
+    this.loading = false;
   },
   methods: {
     //@@ リアルタイムリスナー。引数をユーザーIDに直す
-    async getUserActionHistory() {
+    async getUserActionHistory(uid) {
       this.loading = true;
-      this.histories = await getActionHistoryArr("hoge");
+      this.histories = await getActionHistoryArr(uid);
       this.loading = false;
     },
   },
