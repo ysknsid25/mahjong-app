@@ -59,105 +59,115 @@
                     </v-card-title>
                     <v-divider></v-divider>
                     <v-card-text>
-                      <v-container>
-                        <v-row justify="center" dense>
-                          <v-col cols="12"> </v-col>
-                        </v-row>
-                        <v-row justify="center" dense>
-                          <v-col>
-                            <v-select
-                              v-model="ba"
-                              item-text="label"
-                              item-value="value"
-                              :items="baItems"
-                              label="場"
-                            />
-                          </v-col>
-                          <v-col>
-                            <v-select
-                              v-model="kyoku"
-                              :items="kyokuItems"
-                              label="局"
-                            />
-                          </v-col>
-                          <v-col>
-                            <v-select
-                              v-model="honba"
-                              :items="honbaItems"
-                              label="本場"
-                            />
-                          </v-col>
-                          <v-col>
-                            <div align="center">
-                              <v-avatar size="40" class="indigo ml-4 mt-1">
-                                <span class="white--text">{{ reachBou }}</span>
-                              </v-avatar>
-                            </div>
-                          </v-col>
-                        </v-row>
-                        <v-row justify="center" dense>
-                          <v-col>
-                            <v-select
-                              v-model="oya"
-                              :items="horashaList"
-                              label="親"
-                            />
-                          </v-col>
-                          <v-col>
-                            <v-select
-                              v-model="horasha"
-                              :items="horashaList"
-                              label="和了者"
-                            />
-                          </v-col>
-                          <v-col>
-                            <v-select
-                              v-model="shiharaiNin"
-                              :items="shiharaiNinList"
-                              label="支払人"
-                            />
-                          </v-col>
-                        </v-row>
-                        <v-divider class="mt-6 mb-8"></v-divider>
-                        <v-row
-                          justify="center"
-                          dense
-                          v-for="label in calcVarLbArr"
-                          :key="label"
-                        >
-                          <v-col>
-                            <v-text-field
-                              v-model="calcuVar[label]['score']"
-                              :label="calcuVar[label]['name']"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col>
-                            <div align="center">
-                              <v-btn
-                                rounded
-                                small
-                                color="indigo"
-                                dark
-                                class="mt-4"
-                                @click="reach(label)"
-                                >立直</v-btn
-                              >
-                            </div>
-                          </v-col>
-                          <v-col>
-                            <v-text-field
-                              v-model="calcuVar[label]['plus']"
-                              label="＋"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col>
-                            <v-text-field
-                              v-model="calcuVar[label]['minus']"
-                              label="-"
-                            ></v-text-field>
-                          </v-col>
-                        </v-row>
-                      </v-container>
+                      <v-form v-model="valid" ref="form">
+                        <v-container>
+                          <v-row justify="center" dense>
+                            <v-col cols="12"> </v-col>
+                          </v-row>
+                          <v-row justify="center" dense>
+                            <v-col>
+                              <v-select
+                                v-model="ba"
+                                item-text="label"
+                                item-value="value"
+                                :items="baItems"
+                                label="場"
+                              />
+                            </v-col>
+                            <v-col>
+                              <v-select
+                                v-model="kyoku"
+                                :items="kyokuItems"
+                                label="局"
+                              />
+                            </v-col>
+                            <v-col>
+                              <v-select
+                                v-model="honba"
+                                :items="honbaItems"
+                                label="本場"
+                              />
+                            </v-col>
+                            <v-col>
+                              <div align="center">
+                                <v-avatar size="40" class="indigo ml-4 mt-1">
+                                  <span class="white--text">{{
+                                    reachBou
+                                  }}</span>
+                                </v-avatar>
+                              </div>
+                            </v-col>
+                          </v-row>
+                          <v-row justify="center" dense>
+                            <v-col>
+                              <v-select
+                                v-model="oya"
+                                :items="horashaList"
+                                label="親"
+                              />
+                            </v-col>
+                            <v-col>
+                              <v-select
+                                v-model="horasha"
+                                :items="horashaList"
+                                label="和了者"
+                              />
+                            </v-col>
+                            <v-col>
+                              <v-select
+                                v-model="shiharaiNin"
+                                :items="shiharaiNinList"
+                                label="支払人"
+                              />
+                            </v-col>
+                          </v-row>
+                          <v-divider class="mt-6 mb-8"></v-divider>
+                          <v-row
+                            justify="center"
+                            dense
+                            v-for="label in calcVarLbArr"
+                            :key="label"
+                          >
+                            <v-col>
+                              <v-text-field
+                                v-model="calcuVar[label]['score']"
+                                :label="calcuVar[label]['name']"
+                                :rules="scoreRules"
+                                required
+                              ></v-text-field>
+                            </v-col>
+                            <v-col>
+                              <div align="center">
+                                <v-btn
+                                  rounded
+                                  small
+                                  color="indigo"
+                                  dark
+                                  class="mt-4"
+                                  @click="reach(label)"
+                                  >立直</v-btn
+                                >
+                              </div>
+                            </v-col>
+                            <v-col>
+                              <v-text-field
+                                v-model="calcuVar[label]['plus']"
+                                label="＋"
+                                :rules="scoreRules"
+                                required
+                              ></v-text-field>
+                            </v-col>
+                            <v-col>
+                              <v-text-field
+                                v-model="calcuVar[label]['minus']"
+                                label="-"
+                                :rules="scoreRules"
+                                required
+                              ></v-text-field>
+                            </v-col>
+                          </v-row>
+                        </v-container>
+                      </v-form>
                     </v-card-text>
                     <v-divider></v-divider>
                     <v-card-actions>
@@ -354,6 +364,20 @@ export default {
       },
     ],
     kyokuKekkaInfo: "",
+    scoreRules: [
+      (v) => {
+        if (typeof v !== "undefined") {
+          return /^[0-9]+$/.test(v) || "必須かつ数字のみ";
+        }
+        return "必須かつ数字のみ";
+      },
+      (v) => {
+        if (typeof v !== "undefined") {
+          return (0 <= v && v <= 200000) || "0以上200000以下";
+        }
+        return "0以上200000以下";
+      },
+    ],
   }),
 
   methods: {
@@ -394,13 +418,15 @@ export default {
     },
 
     deleteItem() {
-      //@@対局情報を削除
-      createActionHistory("Delete Room", "対局記録を削除しました。");
-      /*
+      if (confirm("対局情報を削除しますか？")) {
+        //@@対局情報を削除
+        createActionHistory("Delete Room", "対局記録を削除しました。");
+        /*
       const index = this.scores.indexOf(item);
       confirm("Are you sure you want to delete past Room?") &&
         this.scores.splice(index, 1);
         */
+      }
     },
     reach(who) {
       const reachRyou = 1000;
@@ -408,11 +434,15 @@ export default {
       this.calcuVar[who].score -= reachRyou;
     },
     liquidation() {
-      if (this.isSamePerson()) {
-        alert("和了者と支払人が同一人物です。");
-      } else if (confirm(this.getConfirmMessage())) {
-        this.subtraction();
-        this.reachBou = 0;
+      if (this.$refs.form.validate()) {
+        if (this.isSamePerson()) {
+          alert("和了者と支払人が同一人物です。");
+        } else if (confirm(this.getConfirmMessage())) {
+          this.subtraction();
+          this.reachBou = 0;
+        }
+      } else {
+        alert("入力値にエラーがあります。");
       }
     },
     getConfirmMessage() {

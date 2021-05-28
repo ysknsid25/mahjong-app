@@ -13,7 +13,7 @@ export const createActionHistory = async (uid, action, message) => {
     const actionInfo = {
         action: action,
         datetime: getTimeStamp(),
-        message: message,
+        message: typeof message === "undefined" ? "" : message,
         userId: uid,
     };
     actionHistoryRef

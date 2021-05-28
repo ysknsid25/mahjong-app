@@ -15,72 +15,101 @@
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="6">
-                <v-menu
-                  v-model="menu"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="290px"
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-text-field
+          <v-form v-model="valid" ref="newRoomForm">
+            <v-container>
+              <v-row>
+                <v-col cols="6">
+                  <v-menu
+                    v-model="menu"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        v-model="date"
+                        label="Date"
+                        readonly
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      no-title
+                      scrollable
                       v-model="date"
-                      label="Date"
-                      readonly
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    no-title
-                    scrollable
-                    v-model="date"
-                    @input="menu = false"
-                  ></v-date-picker>
-                </v-menu>
-              </v-col>
-              <v-col cols="6">
-                <v-select
-                  :items="initMotiten"
-                  label="持ち点"
-                  v-model="selectedMotiten"
-                ></v-select>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="3">
-                <v-text-field v-model="firstName" label="東家"></v-text-field>
-              </v-col>
-              <v-col cols="3">
-                <v-text-field v-model="secondName" label="南家"></v-text-field>
-              </v-col>
-              <v-col cols="3">
-                <v-text-field v-model="thirdName" label="西家"></v-text-field>
-              </v-col>
-              <v-col cols="3">
-                <v-text-field v-model="fourthName" label="北家"></v-text-field>
-              </v-col>
-            </v-row>
-          </v-container>
+                      @input="menu = false"
+                    ></v-date-picker>
+                  </v-menu>
+                </v-col>
+                <v-col cols="6">
+                  <v-select
+                    :items="initMotiten"
+                    label="持ち点"
+                    v-model="selectedMotiten"
+                  ></v-select>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="3">
+                  <v-text-field
+                    v-model="firstName"
+                    :rules="nameRules"
+                    :counter="10"
+                    required
+                    label="東家"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="3">
+                  <v-text-field
+                    v-model="secondName"
+                    :rules="nameRules"
+                    :counter="10"
+                    required
+                    label="南家"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="3">
+                  <v-text-field
+                    v-model="thirdName"
+                    :rules="nameRules"
+                    :counter="10"
+                    required
+                    label="西家"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="3">
+                  <v-text-field
+                    v-model="fourthName"
+                    :rules="nameRules"
+                    :counter="10"
+                    required
+                    label="北家"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-form>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            class="mr-2"
             color="secondary"
             dark
             text
-            @click="closeNewRoomDialog()"
-            >close</v-btn
+            @click="save"
+            :disabled="!valid"
+            class="mr-2"
+            >Save</v-btn
           >
           <v-btn class="mr-2" color="secondary" dark text @click="reset()"
             >Reset</v-btn
           >
-          <v-btn color="secondary" dark text @click="save">Save</v-btn>
+          <v-btn color="secondary" dark text @click="closeNewRoomDialog()"
+            >close</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -94,14 +123,29 @@ export default {
   props: ["maxBattleNo"],
   data: () => ({
     newRoomDialog: false,
+    valid: false,
     menu: false,
     date: new Date().toISOString().substr(0, 10),
     initMotiten: MAHJAN_FUNC.DEF_MOTITEN,
-    selectedMotiten: 0,
+    selectedMotiten: 25000,
     firstName: "",
     secondName: "",
     thirdName: "",
     fourthName: "",
+    nameRules: [
+      (v) => {
+        if (typeof v !== "undefined") {
+          return !!v || "氏名は必須";
+        }
+        return "氏名は必須";
+      },
+      (v) => {
+        if (typeof v !== "undefined") {
+          return v.length <= 10 || "10文字以下";
+        }
+        return "10文字以下";
+      },
+    ],
   }),
   methods: {
     closeNewRoomDialog() {
@@ -116,12 +160,18 @@ export default {
       }
     },
     clear() {
-      this.date = new Date().toISOString().substr(0, 10);
-      this.selectedMotiten = 0;
-      this.firstName = "";
-      this.secondName = "";
-      this.thirdName = "";
-      this.fourthName = "";
+      this.$refs.newRoomForm.reset();
+      this.valid = false;
+      //こいつがいないと値がセットされる前に画面にv-modelの状態が描画されてします
+      //v-modelにセット→描画の流れになるように遅延させている
+      requestAnimationFrame(() => {
+        this.date = new Date().toISOString().substr(0, 10);
+        this.selectedMotiten = 25000;
+        this.firstName = "";
+        this.secondName = "";
+        this.thirdName = "";
+        this.fourthName = "";
+      });
     },
 
     save() {
