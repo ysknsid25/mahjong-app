@@ -5,7 +5,7 @@
         color="secondary"
         dark
         icon
-        v-if="isAdmin"
+        :v-if="isAdmin"
         class="mr-2"
         v-bind="attrs"
         v-on="on"
@@ -71,9 +71,9 @@
 import { infoTypeKbn } from "../constants/kbn";
 import { createReleaseInfo } from "../firestoreaccess/ReleaseHistory";
 import { getTimeStamp } from "../constants/cmnfunc";
+import { auth, RAMEN } from "../plugins/firebase";
 export default {
   name: "Subscriber",
-  props: ["isAdmin"],
   data: () => ({
     dialog: false,
     sending: false,
@@ -81,7 +81,15 @@ export default {
     infoType: "",
     title: "",
     url: "",
+    isAdmin: false,
   }),
+  beforeCreate: async function () {
+    await auth.onAuthStateChanged(function (user) {
+      if (user) {
+        this.isAdmin = user.uid === RAMEN;
+      }
+    });
+  },
   methods: {
     async doUpdateArticle() {
       this.sending = true;

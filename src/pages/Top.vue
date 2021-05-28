@@ -101,13 +101,8 @@ export default {
     async login() {
       this.loading = true;
       this.user = await login();
-      //ログインエラー時の処理
       if (this.user.isLoginSuccess) {
         await authorizeUser(this.user);
-        this.$store.commit(
-          "setAdmin",
-          this.user.uid === "bmLtvvx5TOYJPl08s8PIOavauyv1"
-        );
         this.$router.push("/Main");
       } else {
         this.loading = true;
