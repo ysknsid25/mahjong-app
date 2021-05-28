@@ -58,7 +58,7 @@ const router = new VueRouter({
 
 router.beforeEach(async (to, from, next) => {
     if (to.matched.some((record) => !record.meta.isPublic)) {
-        auth.onAuthStateChanged(function(user) {
+        await auth.onAuthStateChanged(function(user) {
             if (user) {
                 next();
             } else {
@@ -66,7 +66,13 @@ router.beforeEach(async (to, from, next) => {
             }
         });
     } else {
-        next();
+        await auth.onAuthStateChanged(function(user) {
+            if (user) {
+                next({ path: "/Main" });
+            } else {
+                next();
+            }
+        });
     }
 });
 
