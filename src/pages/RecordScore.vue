@@ -255,6 +255,7 @@ import {
   getRoomHistoryArr,
   deleteRoomHistory,
   updateRoomHistory,
+  getHoraHistory,
 } from "../firestoreaccess/RoomHistory";
 
 export default {
@@ -313,32 +314,7 @@ export default {
       fourth: { name: "", score: 0, plus: 0, minus: 0 },
     },
     tokutenInfoList: [],
-    horaHistories: [
-      {
-        id: "1",
-        time: "東1局",
-        fromTo: "Taro -> Yuki",
-        yaku: "役記録なし",
-      },
-      {
-        id: "2",
-        time: "東2局",
-        fromTo: "All -> You",
-        yaku: "立直, ツモ, 平和",
-      },
-      {
-        id: "3",
-        time: "南2局1本場",
-        fromTo: "Yuki -> You",
-        yaku: "役牌, ドラ1",
-      },
-      {
-        id: "4",
-        time: "東2局",
-        fromTo: "You -> Yuki",
-        yaku: "四暗刻",
-      },
-    ],
+    horaHistories: [],
     kyokuKekkaInfo: "",
     scoreRules: [
       (v) => {
@@ -383,7 +359,7 @@ export default {
       this.initTaikyoku(item);
       this.playingRoom = true;
     },
-    initTaikyoku(item) {
+    async initTaikyoku(item) {
       this.docId = item.docId;
       this.ba = "東";
       this.kyoku = "1";
@@ -407,6 +383,7 @@ export default {
       this.calcuVar.third.score = item.thirdScore;
       this.calcuVar.fourth.name = item.fourthName;
       this.calcuVar.fourth.score = item.fourthScore;
+      this.horaHistories = await getHoraHistory(item.docId);
     },
 
     deleteItem(item) {

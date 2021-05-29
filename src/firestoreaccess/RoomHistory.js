@@ -96,6 +96,42 @@ export const deleteRoomHistory = (docId) => {
 };
 
 /**
+ * 和了履歴を取得します
+ * @param {string} docId
+ */
+export const getHoraHistory = async (docId) => {
+    let retArr = [];
+    const SUB_COLLECTION_HORA_HISTORY = COLLECTION_ROOM_HISTORY.doc(
+        docId
+    ).collection("horaHistory");
+    await SUB_COLLECTION_HORA_HISTORY.orderBy("no", "desc")
+        .get()
+        .then((horaHistorySnapShot) => {
+            horaHistorySnapShot.forEach((doc) => {
+                const data = doc.data();
+                const tmpObj = {
+                    docId: doc.id,
+                    no: data.no,
+                    from: data.from,
+                    to: data.to,
+                    time: data.time,
+                    score: data.score,
+                    yaku: data.yaku,
+                };
+                retArr.push(tmpObj);
+            });
+        })
+        .catch((error) => {
+            console.log(error);
+            anl.logEvent("errorInfo", {
+                function: "getHoraHistory",
+                msg: error,
+            });
+        });
+    return retArr;
+};
+
+/**
  * 和了情報を登録・更新する
  * @param {Array} horaInfo
  * @returns boolean isSuccess
