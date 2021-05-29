@@ -83,12 +83,16 @@ export default {
     url: "",
     isAdmin: false,
   }),
-  beforeCreate: async function () {
+  mounted: async function () {
+    let isAdmin = false;
     await auth.onAuthStateChanged(function (user) {
       if (user) {
-        this.isAdmin = user.uid === RAMEN;
+        isAdmin = user.uid == RAMEN;
+      } else {
+        isAdmin = false;
       }
     });
+    this.isAdmin = isAdmin;
   },
   methods: {
     async doUpdateArticle() {
