@@ -1,4 +1,4 @@
-import { db, anl } from "../plugins/firebase";
+import { db, anl, getAuthUserInfo } from "../plugins/firebase";
 import { getTimeStamp } from "../constants/cmnfunc";
 
 export const COLLECTION_ACTION = db.collection("ActionHistory");
@@ -8,13 +8,14 @@ export const COLLECTION_ACTION = db.collection("ActionHistory");
  * @param {String} action
  * @param {String} message
  */
-export const createActionHistory = async (uid, action, message) => {
+export const createActionHistory = async (action, message) => {
+    const user = await getAuthUserInfo();
     const actionHistoryRef = COLLECTION_ACTION.doc();
     const actionInfo = {
         action: action,
         datetime: getTimeStamp(),
         message: typeof message === "undefined" ? "" : message,
-        userId: uid,
+        userId: user.uid,
     };
     actionHistoryRef
         .set(actionInfo)

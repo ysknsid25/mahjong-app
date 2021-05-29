@@ -20,7 +20,7 @@ export const authorizeUser = async (user) => {
     } else {
         await updateUserInfo(userInfo, user);
     }
-    await createActionHistory(user.uid, "login", "");
+    await createActionHistory("login", "");
 };
 
 /**

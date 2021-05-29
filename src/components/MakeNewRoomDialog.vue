@@ -128,7 +128,7 @@ export default {
     date: new Date().toISOString().substr(0, 10),
     initMotiten: MAHJAN_FUNC.DEF_MOTITEN,
     selectedMotiten: 25000,
-    firstName: "",
+    firstName: "You",
     secondName: "",
     thirdName: "",
     fourthName: "",

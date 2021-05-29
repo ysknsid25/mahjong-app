@@ -2,13 +2,13 @@ import { db, anl, auth } from "../plugins/firebase";
 export const COLLECTION_ROOM_HISTORY = db.collection("RoomHistory");
 
 /**
- * 対局室を登録・更新します。
+ * 対局室を登録します。
  * @param {Object} roomInfo
  * @param {Array} horaInfoArr
  * @param {boolean} isNewRoom
  * @return string docId FireStoreへの操作が失敗した場合は空文字
  */
-export const updateRoomHistory = async (roomInfo, horaInfoArr, isNewRoom) => {
+export const createRoomHistory = async (roomInfo) => {
     const uid = await getLoginUid();
     const writeVal = {
         uid: uid,
@@ -23,19 +23,44 @@ export const updateRoomHistory = async (roomInfo, horaInfoArr, isNewRoom) => {
         fourthName: roomInfo.fourthName,
         fourthScore: roomInfo.fourthScore,
     };
-    const docId = isNewRoom ? COLLECTION_ROOM_HISTORY.doc().id : roomInfo.docId;
-    const eventName = isNewRoom ? "RoomHistory Created" : "RoomHistory Updated";
+    const docId = COLLECTION_ROOM_HISTORY.doc().id;
+    const eventName = "RoomHistory Created";
     let isSuccess = await setRoomInfo(docId, writeVal, eventName);
     if (!isSuccess) {
         return "";
     }
-    if (!isNewRoom) {
-        isSuccess = setHoraInfo(docId, horaInfoArr);
-    }
-    if (!isSuccess) {
-        return "";
-    }
     return docId;
+};
+
+/**
+ * 対局履歴を更新する
+ * @param {string} docId
+ * @param {Object} scoreInfo
+ */
+export const updateRoomHistory = async (docId, scoreInfo) => {
+    const writeVal = {
+        firstName: scoreInfo.first.name,
+        firstScore: scoreInfo.first.score,
+        secondName: scoreInfo.second.name,
+        secondScore: scoreInfo.second.score,
+        thirdName: scoreInfo.third.name,
+        thirdScore: scoreInfo.third.score,
+        fourthName: scoreInfo.fourth.name,
+        fourthScore: scoreInfo.fourth.score,
+    };
+    await COLLECTION_ROOM_HISTORY.doc(docId)
+        .update(writeVal)
+        .then(() => {
+            anl.logEvent("update Room History", {
+                function: "updateRoomHistory",
+            });
+        })
+        .catch((error) => {
+            anl.logEvent("errorInfo", {
+                function: "updateRoomHistory",
+                msg: error,
+            });
+        });
 };
 
 /**
@@ -75,7 +100,7 @@ export const deleteRoomHistory = (docId) => {
  * @param {Array} horaInfo
  * @returns boolean isSuccess
  */
-const setHoraInfo = async (docId, horaInfoArr) => {
+export const setHoraInfo = async (docId, horaInfoArr) => {
     let isSuccess = true;
     const SUB_COLLECTION_HORA_HISTORY = COLLECTION_ROOM_HISTORY.doc(
         docId
