@@ -73,13 +73,10 @@ export default {
   created: async function () {
     this.loading = true;
     this.userInfo = await getAuthUserInfo();
-    if (this.userInfo === "") {
-      this.$router.push("/Logout");
-    } else {
-      this.histories = await this.getUserActionHistory(this.userInfo.uid);
-    }
+    this.histories = await getActionHistoryArr(this.userInfo.uid);
     this.loading = false;
   },
+  /*
   methods: {
     //@@ リアルタイムリスナー。引数をユーザーIDに直す
     async getUserActionHistory(uid) {
@@ -88,5 +85,6 @@ export default {
       this.loading = false;
     },
   },
+  */
 };
 </script>
