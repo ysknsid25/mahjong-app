@@ -56,7 +56,11 @@
                         >
                         得点状況
                         <v-spacer></v-spacer>
-                        <v-btn icon color="indigo" @click="exitRoom"
+                        <v-btn
+                          icon
+                          color="indigo"
+                          v-if="!saving"
+                          @click="exitRoom"
                           ><v-icon>fas fa-sign-out-alt</v-icon></v-btn
                         >
                       </v-card-title>
@@ -174,12 +178,18 @@
                       </v-card-text>
                       <v-divider></v-divider>
                       <v-card-actions>
-                        <v-btn icon color="indigo" @click="reverseDoCalcurate">
+                        <v-btn
+                          icon
+                          color="indigo"
+                          v-if="!saving"
+                          @click="reverseDoCalcurate"
+                        >
                           <v-icon>fas fa-calculator</v-icon>
                         </v-btn>
                         <v-btn
                           icon
                           color="indigo"
+                          v-if="!saving"
                           @click="reverseDoDispHistory"
                         >
                           <v-icon>fas fa-history</v-icon>
@@ -187,13 +197,20 @@
                         <v-spacer></v-spacer>
                         <v-btn
                           icon
-                          text
                           color="indigo"
                           dark
+                          v-if="!saving"
                           @click="liquidation"
                         >
                           <v-icon>fas fa-save</v-icon>
                         </v-btn>
+                        <v-progress-circular
+                          v-if="saving"
+                          :size="20"
+                          color="indigo"
+                          dark
+                          indeterminate
+                        ></v-progress-circular>
                       </v-card-actions>
                     </v-card>
                   </div>
@@ -234,9 +251,10 @@ import TokutenKeisan from "../components/taikyokuroom/TokutenKeisan";
 import HoraHistoy from "../components/taikyokuroom/HoraHistory";
 import { createActionHistory } from "../firestoreaccess/ActionHistory";
 import {
-  updateRoomHistory,
+  createRoomHistory,
   getRoomHistoryArr,
   deleteRoomHistory,
+  updateRoomHistory,
 } from "../firestoreaccess/RoomHistory";
 
 export default {
@@ -271,7 +289,7 @@ export default {
       { text: "北家", align: "center", value: "fourthScore", sortable: false },
     ],
     scores: [],
-
+    saving: false,
     doCalcurate: false,
     doDispHistory: false,
     tokuten: 0,
@@ -348,7 +366,7 @@ export default {
   methods: {
     async saveNewRoom(val) {
       this.loading = true;
-      const docId = await updateRoomHistory(val, [], true);
+      const docId = await createRoomHistory(val);
       createActionHistory("Make New Room", "新規対局記録を作成しました。");
       if (docId === "") {
         alert("エラーが発生しました。");
@@ -405,17 +423,23 @@ export default {
       this.reachBou += 1;
       this.calcuVar[who].score -= reachRyou;
     },
-    liquidation() {
-      if (this.$refs.form.validate()) {
+    async liquidation() {
+      this.saving = true;
+      const isValid = await this.$refs.form.validate();
+      if (isValid) {
         if (this.isSamePerson()) {
           alert("和了者と支払人が同一人物です。");
         } else if (confirm(this.getConfirmMessage())) {
           this.subtraction();
           this.reachBou = 0;
+          //@@和了履歴の保存
+          await updateRoomHistory(this.docId, this.calcuVar);
+          createActionHistory("Saved Room", "対局記録を保存しました。");
         }
       } else {
         alert("入力値にエラーがあります。");
       }
+      this.saving = false;
     },
     getConfirmMessage() {
       const isInputYakuInfo =
@@ -431,10 +455,14 @@ export default {
     },
     subtraction() {
       this.calcVarLbArr.map((label) => {
-        this.calcuVar[label]["score"] += MAHJAN_FUNC.liquidationMain(
-          this.calcuVar[label]["plus"],
-          this.calcuVar[label]["minus"]
-        );
+        this.calcuVar[label]["score"] =
+          Number(this.calcuVar[label]["score"]) +
+          Number(
+            MAHJAN_FUNC.liquidationMain(
+              this.calcuVar[label]["plus"],
+              this.calcuVar[label]["minus"]
+            )
+          );
         this.calcuVar[label]["plus"] = 0;
         this.calcuVar[label]["minus"] = 0;
       });
@@ -447,10 +475,22 @@ export default {
       this.kyokuKekkaInfo = "";
     },
 
-    exitRoom() {
+    async exitRoom() {
       this.playingRoom = false;
+      const newScores = this.scores.map((score) => {
+        let newScore = score;
+        if (this.docId === score.docId) {
+          newScore.firstScore = this.calcuVar.first.score;
+          newScore.secondScore = this.calcuVar.second.score;
+          newScore.thirdScore = this.calcuVar.third.score;
+          newScore.fourthScore = this.calcuVar.fourth.score;
+        }
+        return newScore;
+      });
+      this.scores = newScores;
       //@@ 対局情報の保存
-      createActionHistory("Save Room", "対局記録を更新しました。");
+      await updateRoomHistory(this.docId, this.calcuVar);
+      createActionHistory("Saved Room", "対局記録を更新しました。");
       this.roomTable = true;
     },
     reverseDoCalcurate() {
