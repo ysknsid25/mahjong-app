@@ -2,203 +2,226 @@
   <div>
     <v-row justify="center">
       <v-col cols="12">
-        <v-data-table
-          v-show="roomTable"
-          :headers="headers"
-          :items="scores"
-          :items-per-page="5"
-          class="elevation-2"
-          item-key="battleNo"
-          :sort-by="['battleNo']"
-          :sort-desc="[true]"
-          v-if="scores.length > 0"
-        >
-          <template v-slot:top>
-            <v-toolbar flat color="white">
-              <v-toolbar-title>対局履歴</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <MakeNewRoomDialog
-                :maxBattleNo="scores[scores.length - 1]['battleNo']"
-                @save-from-newroom="saveNewRoom"
-              ></MakeNewRoomDialog>
-            </v-toolbar>
-          </template>
-          <template v-slot:item.actions="{ item }">
-            <v-icon small class="mr-2" @click="editItem(item)">
-              mdi-pencil
-            </v-icon>
-            <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
-          </template>
-          <template v-slot:no-data>
-            <v-btn color="primary" @click="initialize">Reset</v-btn>
-          </template>
-        </v-data-table>
-        <div align="center" v-if="!scores.length > 0">
-          <MakeNewRoomDialog
-            :maxBattleNo="0"
-            @save-from-newroom="saveNewRoom"
-            class="ml-2"
-          ></MakeNewRoomDialog>
+        <div v-if="!loading">
+          <v-data-table
+            v-show="roomTable"
+            :headers="headers"
+            :items="scores"
+            :items-per-page="5"
+            class="elevation-2"
+            item-key="docId"
+            :sort-by="['battleNo']"
+            :sort-desc="[true]"
+            v-if="scores.length > 0"
+          >
+            <template v-slot:top>
+              <v-toolbar flat color="white">
+                <v-toolbar-title>対局履歴</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <MakeNewRoomDialog
+                  :maxBattleNo="scores[scores.length - 1]['battleNo']"
+                  @save-from-newroom="saveNewRoom"
+                ></MakeNewRoomDialog>
+              </v-toolbar>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <v-icon small class="mr-2" @click="editItem(item)">
+                mdi-pencil
+              </v-icon>
+              <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+            </template>
+            <template v-slot:no-data>
+              <v-btn color="primary" @click="initialize">Reset</v-btn>
+            </template>
+          </v-data-table>
+          <div align="center" v-if="!scores.length > 0">
+            <MakeNewRoomDialog
+              :maxBattleNo="0"
+              @save-from-newroom="saveNewRoom"
+              class="ml-2"
+            ></MakeNewRoomDialog>
+          </div>
+          <div v-show="!roomTable">
+            <v-container>
+              <v-row justify="center">
+                <v-col cols="12">
+                  <div align="center">
+                    <v-card
+                      v-show="!doCalcurate && !doDispHistory"
+                      max-width="500"
+                    >
+                      <v-card-title>
+                        <v-icon color="indigo" class="mr-2"
+                          >fas fa-table</v-icon
+                        >
+                        得点状況
+                        <v-spacer></v-spacer>
+                        <v-btn icon color="indigo" @click="exitRoom"
+                          ><v-icon>fas fa-sign-out-alt</v-icon></v-btn
+                        >
+                      </v-card-title>
+                      <v-divider></v-divider>
+                      <v-card-text>
+                        <v-form v-model="valid" ref="form">
+                          <v-container>
+                            <v-row justify="center" dense>
+                              <v-col cols="12"> </v-col>
+                            </v-row>
+                            <v-row justify="center" dense>
+                              <v-col>
+                                <v-select
+                                  v-model="ba"
+                                  item-text="label"
+                                  item-value="value"
+                                  :items="baItems"
+                                  label="場"
+                                />
+                              </v-col>
+                              <v-col>
+                                <v-select
+                                  v-model="kyoku"
+                                  :items="kyokuItems"
+                                  label="局"
+                                />
+                              </v-col>
+                              <v-col>
+                                <v-select
+                                  v-model="honba"
+                                  :items="honbaItems"
+                                  label="本場"
+                                />
+                              </v-col>
+                              <v-col>
+                                <div align="center">
+                                  <v-avatar size="40" class="indigo ml-4 mt-1">
+                                    <span class="white--text">{{
+                                      reachBou
+                                    }}</span>
+                                  </v-avatar>
+                                </div>
+                              </v-col>
+                            </v-row>
+                            <v-row justify="center" dense>
+                              <v-col>
+                                <v-select
+                                  v-model="oya"
+                                  :items="horashaList"
+                                  label="親"
+                                />
+                              </v-col>
+                              <v-col>
+                                <v-select
+                                  v-model="horasha"
+                                  :items="horashaList"
+                                  label="和了者"
+                                />
+                              </v-col>
+                              <v-col>
+                                <v-select
+                                  v-model="shiharaiNin"
+                                  :items="shiharaiNinList"
+                                  label="支払人"
+                                />
+                              </v-col>
+                            </v-row>
+                            <v-divider class="mt-6 mb-8"></v-divider>
+                            <v-row
+                              justify="center"
+                              dense
+                              v-for="label in calcVarLbArr"
+                              :key="label"
+                            >
+                              <v-col>
+                                <v-text-field
+                                  v-model="calcuVar[label]['score']"
+                                  :label="calcuVar[label]['name']"
+                                  :rules="scoreRules"
+                                  required
+                                ></v-text-field>
+                              </v-col>
+                              <v-col>
+                                <div align="center">
+                                  <v-btn
+                                    rounded
+                                    small
+                                    color="indigo"
+                                    dark
+                                    class="mt-4"
+                                    @click="reach(label)"
+                                    >立直</v-btn
+                                  >
+                                </div>
+                              </v-col>
+                              <v-col>
+                                <v-text-field
+                                  v-model="calcuVar[label]['plus']"
+                                  label="＋"
+                                  :rules="scoreRules"
+                                  required
+                                ></v-text-field>
+                              </v-col>
+                              <v-col>
+                                <v-text-field
+                                  v-model="calcuVar[label]['minus']"
+                                  label="-"
+                                  :rules="scoreRules"
+                                  required
+                                ></v-text-field>
+                              </v-col>
+                            </v-row>
+                          </v-container>
+                        </v-form>
+                      </v-card-text>
+                      <v-divider></v-divider>
+                      <v-card-actions>
+                        <v-btn icon color="indigo" @click="reverseDoCalcurate">
+                          <v-icon>fas fa-calculator</v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          color="indigo"
+                          @click="reverseDoDispHistory"
+                        >
+                          <v-icon>fas fa-history</v-icon>
+                        </v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          icon
+                          text
+                          color="indigo"
+                          dark
+                          @click="liquidation"
+                        >
+                          <v-icon>fas fa-save</v-icon>
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </div>
+                  <TokutenKeisan
+                    :editItem="calcuVar"
+                    v-if="doCalcurate && !doDispHistory"
+                    @back-tokuten-top-seisan="deployTokutenResult"
+                    @back-tokuten-top-tenpai="deployTokutenTenpai"
+                    @back-tokuten-top="reverseDoCalcurate"
+                  ></TokutenKeisan>
+                  <HoraHistoy
+                    :histories="horaHistories"
+                    v-if="!doCalcurate && doDispHistory"
+                    @close-from-HoraHistory="reverseDoDispHistory"
+                  ></HoraHistoy>
+                </v-col>
+              </v-row>
+            </v-container>
+          </div>
         </div>
-        <div v-show="!roomTable">
-          <v-container>
-            <v-row justify="center">
-              <v-col cols="12">
-                <div align="center">
-                  <v-card
-                    v-show="!doCalcurate && !doDispHistory"
-                    max-width="500"
-                  >
-                    <v-card-title>
-                      <v-icon color="indigo" class="mr-2">fas fa-table</v-icon>
-                      得点状況
-                      <v-spacer></v-spacer>
-                      <v-btn icon color="indigo" @click="exitRoom"
-                        ><v-icon>fas fa-sign-out-alt</v-icon></v-btn
-                      >
-                    </v-card-title>
-                    <v-divider></v-divider>
-                    <v-card-text>
-                      <v-form v-model="valid" ref="form">
-                        <v-container>
-                          <v-row justify="center" dense>
-                            <v-col cols="12"> </v-col>
-                          </v-row>
-                          <v-row justify="center" dense>
-                            <v-col>
-                              <v-select
-                                v-model="ba"
-                                item-text="label"
-                                item-value="value"
-                                :items="baItems"
-                                label="場"
-                              />
-                            </v-col>
-                            <v-col>
-                              <v-select
-                                v-model="kyoku"
-                                :items="kyokuItems"
-                                label="局"
-                              />
-                            </v-col>
-                            <v-col>
-                              <v-select
-                                v-model="honba"
-                                :items="honbaItems"
-                                label="本場"
-                              />
-                            </v-col>
-                            <v-col>
-                              <div align="center">
-                                <v-avatar size="40" class="indigo ml-4 mt-1">
-                                  <span class="white--text">{{
-                                    reachBou
-                                  }}</span>
-                                </v-avatar>
-                              </div>
-                            </v-col>
-                          </v-row>
-                          <v-row justify="center" dense>
-                            <v-col>
-                              <v-select
-                                v-model="oya"
-                                :items="horashaList"
-                                label="親"
-                              />
-                            </v-col>
-                            <v-col>
-                              <v-select
-                                v-model="horasha"
-                                :items="horashaList"
-                                label="和了者"
-                              />
-                            </v-col>
-                            <v-col>
-                              <v-select
-                                v-model="shiharaiNin"
-                                :items="shiharaiNinList"
-                                label="支払人"
-                              />
-                            </v-col>
-                          </v-row>
-                          <v-divider class="mt-6 mb-8"></v-divider>
-                          <v-row
-                            justify="center"
-                            dense
-                            v-for="label in calcVarLbArr"
-                            :key="label"
-                          >
-                            <v-col>
-                              <v-text-field
-                                v-model="calcuVar[label]['score']"
-                                :label="calcuVar[label]['name']"
-                                :rules="scoreRules"
-                                required
-                              ></v-text-field>
-                            </v-col>
-                            <v-col>
-                              <div align="center">
-                                <v-btn
-                                  rounded
-                                  small
-                                  color="indigo"
-                                  dark
-                                  class="mt-4"
-                                  @click="reach(label)"
-                                  >立直</v-btn
-                                >
-                              </div>
-                            </v-col>
-                            <v-col>
-                              <v-text-field
-                                v-model="calcuVar[label]['plus']"
-                                label="＋"
-                                :rules="scoreRules"
-                                required
-                              ></v-text-field>
-                            </v-col>
-                            <v-col>
-                              <v-text-field
-                                v-model="calcuVar[label]['minus']"
-                                label="-"
-                                :rules="scoreRules"
-                                required
-                              ></v-text-field>
-                            </v-col>
-                          </v-row>
-                        </v-container>
-                      </v-form>
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions>
-                      <v-btn icon color="indigo" @click="reverseDoCalcurate">
-                        <v-icon>fas fa-calculator</v-icon>
-                      </v-btn>
-                      <v-btn icon color="indigo" @click="reverseDoDispHistory">
-                        <v-icon>fas fa-history</v-icon>
-                      </v-btn>
-                      <v-spacer></v-spacer>
-                      <v-btn icon text color="indigo" dark @click="liquidation">
-                        <v-icon>fas fa-save</v-icon>
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </div>
-                <TokutenKeisan
-                  :editItem="calcuVar"
-                  v-if="doCalcurate && !doDispHistory"
-                  @back-tokuten-top-seisan="deployTokutenResult"
-                  @back-tokuten-top-tenpai="deployTokutenTenpai"
-                  @back-tokuten-top="reverseDoCalcurate"
-                ></TokutenKeisan>
-                <HoraHistoy
-                  :histories="horaHistories"
-                  v-if="!doCalcurate && doDispHistory"
-                  @close-from-HoraHistory="reverseDoDispHistory"
-                ></HoraHistoy>
-              </v-col>
-            </v-row>
-          </v-container>
+        <div v-if="loading" align="center">
+          <v-progress-circular
+            v-if="loading"
+            :size="50"
+            color="secondary"
+            dark
+            indeterminate
+          ></v-progress-circular>
         </div>
       </v-col>
     </v-row>
@@ -210,6 +233,11 @@ import * as MAHJAN_FUNC from "../constants/mahjong";
 import TokutenKeisan from "../components/taikyokuroom/TokutenKeisan";
 import HoraHistoy from "../components/taikyokuroom/HoraHistory";
 import { createActionHistory } from "../firestoreaccess/ActionHistory";
+import {
+  updateRoomHistory,
+  getRoomHistoryArr,
+  deleteRoomHistory,
+} from "../firestoreaccess/RoomHistory";
 
 export default {
   name: "RecordScore",
@@ -219,7 +247,10 @@ export default {
     HoraHistoy,
   },
   data: () => ({
+    docId: "",
     roomTable: true,
+    loading: true,
+    valid: false,
     headers: [
       {
         text: "No",
@@ -239,80 +270,7 @@ export default {
       { text: "西家", align: "center", value: "thirdScore", sortable: false },
       { text: "北家", align: "center", value: "fourthScore", sortable: false },
     ],
-    scores: [
-      {
-        battleNo: 1,
-        ymd: "2020/05/20",
-        firstName: "Tom",
-        firstScore: 35000,
-        secondName: "Meary",
-        secondScore: 30000,
-        thirdName: "Nick",
-        thirdScore: 25000,
-        fourthName: "Mike",
-        fourthScore: 20000,
-      },
-      {
-        battleNo: 2,
-        ymd: "2020/05/22",
-        firstName: "Meary",
-        firstScore: 32000,
-        secondName: "Michel",
-        secondScore: 30000,
-        thirdName: "Tom",
-        thirdScore: 23000,
-        fourthName: "Jody",
-        fourthScore: 20000,
-      },
-      {
-        battleNo: 3,
-        ymd: "2020/05/23",
-        firstName: "Jil",
-        firstScore: 28000,
-        secondName: "Tom",
-        secondScore: 25000,
-        thirdName: "Van",
-        thirdScore: 25000,
-        fourthName: "Sin",
-        fourthScore: 22000,
-      },
-      {
-        battleNo: 4,
-        ymd: "2020/05/24",
-        firstName: "Michel",
-        firstScore: 40000,
-        secondName: "Mike",
-        secondScore: 30000,
-        thirdName: "Nick",
-        thirdScore: 15000,
-        fourthName: "Coco",
-        fourthScore: 10000,
-      },
-      {
-        battleNo: 5,
-        ymd: "2020/05/25",
-        firstName: "Issei",
-        firstScore: 34000,
-        secondName: "Margaret",
-        secondScore: 30000,
-        thirdName: "Car",
-        thirdScore: 25000,
-        fourthName: "Sorate",
-        fourthScore: 16000,
-      },
-      {
-        battleNo: 6,
-        ymd: "2020/05/26",
-        firstName: "Daniel",
-        firstScore: 44000,
-        secondName: "Jim",
-        secondScore: 30000,
-        thirdName: "Tom",
-        thirdScore: 20000,
-        fourthName: "Nick",
-        fourthScore: 6000,
-      },
-    ],
+    scores: [],
 
     doCalcurate: false,
     doDispHistory: false,
@@ -380,12 +338,27 @@ export default {
     ],
   }),
 
+  created: async function () {
+    this.loading = true;
+    this.scores = await getRoomHistoryArr();
+    //console.log(this.scores);
+    this.loading = false;
+  },
+
   methods: {
-    saveNewRoom(val) {
-      this.roomTable = false;
-      //対局室情報を生成する
+    async saveNewRoom(val) {
+      this.loading = true;
+      const docId = await updateRoomHistory(val, [], true);
       createActionHistory("Make New Room", "新規対局記録を作成しました。");
-      this.scores.push(val);
+      if (docId === "") {
+        alert("エラーが発生しました。");
+        this.roomTable = true;
+      } else {
+        val.docId = docId;
+        this.scores.push(val);
+        this.editItem(val);
+      }
+      this.loading = false;
     },
     editItem(item) {
       this.roomTable = false;
@@ -393,6 +366,7 @@ export default {
       this.playingRoom = true;
     },
     initTaikyoku(item) {
+      this.docId = item.docId;
       this.ba = "東";
       this.kyoku = "1";
       this.honba = "";
@@ -417,15 +391,13 @@ export default {
       this.calcuVar.fourth.score = item.fourthScore;
     },
 
-    deleteItem() {
+    deleteItem(item) {
       if (confirm("対局情報を削除しますか？")) {
-        //@@対局情報を削除
-        createActionHistory("Delete Room", "対局記録を削除しました。");
-        /*
-      const index = this.scores.indexOf(item);
-      confirm("Are you sure you want to delete past Room?") &&
+        const index = this.scores.indexOf(item);
         this.scores.splice(index, 1);
-        */
+        //console.log(item.docId);
+        deleteRoomHistory(item.docId);
+        createActionHistory("Delete Room", "対局記録を削除しました。");
       }
     },
     reach(who) {
