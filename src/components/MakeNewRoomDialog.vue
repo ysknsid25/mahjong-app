@@ -58,6 +58,7 @@
                     :rules="nameRules"
                     :counter="10"
                     required
+                    readonly
                     label="東家"
                   ></v-text-field>
                 </v-col>
@@ -167,7 +168,7 @@ export default {
       requestAnimationFrame(() => {
         this.date = new Date().toISOString().substr(0, 10);
         this.selectedMotiten = 25000;
-        this.firstName = "";
+        this.firstName = "You";
         this.secondName = "";
         this.thirdName = "";
         this.fourthName = "";
