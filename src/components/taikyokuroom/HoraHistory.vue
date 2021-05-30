@@ -26,15 +26,28 @@
             >
               <v-timeline-item
                 v-for="history in histories"
-                :key="history.id"
+                :key="history.docId"
                 color="indigo"
                 small
               >
                 <div>
                   <div class="font-weight-normal">
-                    <strong>{{ history.time }}</strong> @{{ history.fromTo }}
+                    <strong>{{ history.time }}</strong>
+                    {{
+                      history.from !== "" && history.to !== ""
+                        ? "@" + history.from + " -> " + history.to
+                        : ""
+                    }}
                   </div>
-                  <div>{{ history.yaku }}</div>
+                  <div>
+                    {{ history.yaku !== "" ? history.yaku : "記録なし" }}
+                  </div>
+                  <div>{{ history.score }}</div>
+                  <div>
+                    <v-btn icon small @click="deleteHoraInfo(history)">
+                      <v-icon>far fa-trash-alt</v-icon>
+                    </v-btn>
+                  </div>
                 </div>
               </v-timeline-item>
             </v-timeline>
@@ -54,14 +67,24 @@
 </template>
 
 <script>
+import { createActionHistory } from "../../firestoreaccess/ActionHistory";
+import { deleteHoraInfo } from "../../firestoreaccess/RoomHistory";
 export default {
   name: "HoraHistory",
-  props: ["histories"],
+  props: ["histories", "docId"],
   data: () => ({
     loading: false,
   }),
 
   methods: {
+    deleteHoraInfo(historyInfo) {
+      if (confirm("和了情報を削除しますか？")) {
+        const index = this.histories.indexOf(historyInfo);
+        this.histories.splice(index, 1);
+        deleteHoraInfo(this.docId, historyInfo.docId);
+        createActionHistory("Delete HoraInfo", "和了記録を削除しました。");
+      }
+    },
     backTokutenTop() {
       this.$emit("close-from-HoraHistory");
     },

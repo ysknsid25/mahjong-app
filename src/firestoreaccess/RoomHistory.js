@@ -115,14 +115,13 @@ export const getHoraHistory = async (docId) => {
                     from: data.from,
                     to: data.to,
                     time: data.time,
-                    score: data.score,
                     yaku: data.yaku,
+                    score: data.score,
                 };
                 retArr.push(tmpObj);
             });
         })
         .catch((error) => {
-            console.log(error);
             anl.logEvent("errorInfo", {
                 function: "getHoraHistory",
                 msg: error,
@@ -132,38 +131,41 @@ export const getHoraHistory = async (docId) => {
 };
 
 /**
- * 和了情報を登録・更新する
- * @param {Array} horaInfo
- * @returns boolean isSuccess
+ * 和了履歴を削除する
+ * @param {string} docId
  */
-export const setHoraInfo = async (docId, horaInfoArr) => {
-    let isSuccess = true;
+export const deleteHoraInfo = (docId, subDocId) => {
     const SUB_COLLECTION_HORA_HISTORY = COLLECTION_ROOM_HISTORY.doc(
         docId
     ).collection("horaHistory");
-    horaInfoArr.map(async (horaInfo) => {
-        const horaDocId =
-            horaInfo.docId === ""
-                ? SUB_COLLECTION_HORA_HISTORY.id
-                : horaInfo.docId;
-        const action =
-            horaInfo.docId === "" ? "create horaInfo" : "update horaInfo";
-        await SUB_COLLECTION_HORA_HISTORY.doc(horaDocId)
-            .set(horaInfo)
-            .then(() => {
-                anl.logEvent(action, {
-                    function: "setHoraInfo",
-                });
-            })
-            .catch((error) => {
-                anl.logEvent("errorInfo", {
-                    function: "setHoraInfo",
-                    msg: error,
-                });
-                isSuccess = false;
+    SUB_COLLECTION_HORA_HISTORY.doc(subDocId).delete();
+};
+
+/**
+ * 和了情報を登録する
+ * @param {Array} horaInfo
+ * @returns string subDocId
+ */
+export const setHoraInfo = async (docId, horaInfo) => {
+    const SUB_COLLECTION_HORA_HISTORY = COLLECTION_ROOM_HISTORY.doc(
+        docId
+    ).collection("horaHistory");
+    let subDocId = SUB_COLLECTION_HORA_HISTORY.doc().id;
+    await SUB_COLLECTION_HORA_HISTORY.doc(subDocId)
+        .set(horaInfo)
+        .then(() => {
+            anl.logEvent("create hora history", {
+                function: "setHoraInfo",
             });
-    });
-    return isSuccess;
+        })
+        .catch((error) => {
+            anl.logEvent("errorInfo", {
+                function: "setHoraInfo",
+                msg: error,
+            });
+            subDocId = "";
+        });
+    return subDocId;
 };
 
 /**
@@ -199,7 +201,6 @@ export const getRoomHistoryArr = async () => {
             });
         })
         .catch((error) => {
-            console.log(error);
             anl.logEvent("errorInfo", {
                 function: "getRoomHistoryArr",
                 msg: error,

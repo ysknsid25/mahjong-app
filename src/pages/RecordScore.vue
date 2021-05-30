@@ -139,7 +139,7 @@
                                 <v-text-field
                                   v-model="calcuVar[label]['score']"
                                   :label="calcuVar[label]['name']"
-                                  :rules="scoreRules"
+                                  :rules="totalScoreRules"
                                   required
                                 ></v-text-field>
                               </v-col>
@@ -223,6 +223,7 @@
                   ></TokutenKeisan>
                   <HoraHistoy
                     :histories="horaHistories"
+                    :docId="docId"
                     v-if="!doCalcurate && doDispHistory"
                     @close-from-HoraHistory="reverseDoDispHistory"
                   ></HoraHistoy>
@@ -256,6 +257,7 @@ import {
   deleteRoomHistory,
   updateRoomHistory,
   getHoraHistory,
+  setHoraInfo,
 } from "../firestoreaccess/RoomHistory";
 
 export default {
@@ -330,6 +332,20 @@ export default {
         return "0以上200000以下";
       },
     ],
+    totalScoreRules: [
+      (v) => {
+        if (typeof v !== "undefined") {
+          return /^[-]?([1-9]\d*|0)$/.test(v) || "必須かつ整数のみ";
+        }
+        return "必須かつ整数のみ";
+      },
+      (v) => {
+        if (typeof v !== "undefined") {
+          return (-200000 <= v && v <= 200000) || "-200000以上200000以下";
+        }
+        return "-200000以上200000以下";
+      },
+    ],
   }),
 
   created: async function () {
@@ -377,12 +393,20 @@ export default {
       this.shiharaiNinList = ["All", ...menber];
       this.calcuVar.first.name = item.firstName;
       this.calcuVar.first.score = item.firstScore;
+      this.calcuVar.first.plus = 0;
+      this.calcuVar.first.minus = 0;
       this.calcuVar.second.name = item.secondName;
       this.calcuVar.second.score = item.secondScore;
+      this.calcuVar.second.plus = 0;
+      this.calcuVar.second.minus = 0;
       this.calcuVar.third.name = item.thirdName;
       this.calcuVar.third.score = item.thirdScore;
+      this.calcuVar.third.plus = 0;
+      this.calcuVar.third.minus = 0;
       this.calcuVar.fourth.name = item.fourthName;
       this.calcuVar.fourth.score = item.fourthScore;
+      this.calcuVar.fourth.plus = 0;
+      this.calcuVar.fourth.minus = 0;
       this.horaHistories = await getHoraHistory(item.docId);
     },
 
@@ -390,7 +414,6 @@ export default {
       if (confirm("対局情報を削除しますか？")) {
         const index = this.scores.indexOf(item);
         this.scores.splice(index, 1);
-        //console.log(item.docId);
         deleteRoomHistory(item.docId);
         createActionHistory("Delete Room", "対局記録を削除しました。");
       }
@@ -407,9 +430,17 @@ export default {
         if (this.isSamePerson()) {
           alert("和了者と支払人が同一人物です。");
         } else if (confirm(this.getConfirmMessage())) {
-          this.subtraction();
+          const totalTokuten = this.subtraction();
           this.reachBou = 0;
-          //@@和了履歴の保存
+          //直接得点を入力された場合は和了情報が作成されてないから、このタイミングで作る
+          if (Object.keys(this.kyokuKekkaInfo).length === 0) {
+            this.makeHoraHistoryInfo([], totalTokuten);
+          }
+          console.log(this.kyokuKekkaInfo);
+          const sucDocId = await setHoraInfo(this.docId, this.kyokuKekkaInfo);
+          this.kyokuKekkaInfo.docId = sucDocId;
+          this.horaHistories.push(this.kyokuKekkaInfo);
+          this.kyokuKekkaInfo = {};
           await updateRoomHistory(this.docId, this.calcuVar);
           createActionHistory("Saved Room", "対局記録を保存しました。");
         }
@@ -420,8 +451,8 @@ export default {
     },
     getConfirmMessage() {
       const isInputYakuInfo =
-        this.kyokuKekkaInfo !== "" &&
-        typeof this.kyokuKekkaInfo !== "undefined";
+        typeof this.kyokuKekkaInfo.yaku !== "undefined" &&
+        this.kyokuKekkaInfo.yaku !== "";
       const baseMsg =
         "現在の入力値でこの局の結果を保存します。\r\nよろしいですか？\r\n";
       if (isInputYakuInfo) {
@@ -431,6 +462,7 @@ export default {
       }
     },
     subtraction() {
+      let totalTokuten = 0;
       this.calcVarLbArr.map((label) => {
         this.calcuVar[label]["score"] =
           Number(this.calcuVar[label]["score"]) +
@@ -440,16 +472,13 @@ export default {
               this.calcuVar[label]["minus"]
             )
           );
+        if (this.calcuVar[label]["name"] === this.horasha) {
+          totalTokuten = this.calcuVar[label]["plus"];
+        }
         this.calcuVar[label]["plus"] = 0;
         this.calcuVar[label]["minus"] = 0;
       });
-      if (
-        this.kyokuKekkaInfo === "" ||
-        typeof this.kyokuKekkaInfo == "undefined"
-      ) {
-        this.horaHistories.push(this.kyokuKekkaInfo);
-      }
-      this.kyokuKekkaInfo = "";
+      return totalTokuten;
     },
 
     async exitRoom() {
@@ -465,7 +494,6 @@ export default {
         return newScore;
       });
       this.scores = newScores;
-      //@@ 対局情報の保存
       await updateRoomHistory(this.docId, this.calcuVar);
       createActionHistory("Saved Room", "対局記録を更新しました。");
       this.roomTable = true;
@@ -492,44 +520,55 @@ export default {
       const bappuShiharai = retTenpaiArr.filter(
         (tenpaiInfo) => tenpaiInfo["minusVal"] > 0
       );
-      const nextNo = this.horaHistories.length + 1;
+      const nextNo = this.horaHistories[this.horaHistories.length - 1].no + 1;
       const honba = this.honba === "" ? this.honba : this.honba + "本場";
       const time = this.ba + this.kyoku + "局" + honba;
-      let fromTo = "支払なし";
+      const tokuten = 3000 / bappuUketori.length;
+      let from = "";
+      let to = "";
+      let yaku = "流局";
       if (bappuUketori.length > 0) {
-        const from = bappuShiharai
+        from = bappuShiharai
           .map((tenpaiInfo) => this.calcuVar[tenpaiInfo.name].name)
           .join(",");
-        const to = bappuUketori
+        to = bappuUketori
           .map((tenpaiInfo) => this.calcuVar[tenpaiInfo.name].name)
           .join(",");
-        fromTo = from + " -> " + to;
+        yaku = "ノーテン罰符";
       }
       this.kyokuKekkaInfo = {
-        id: nextNo,
+        no: nextNo,
         time: time,
-        fromTo: fromTo,
-        yaku: "流局",
+        from: from,
+        to: to,
+        yaku: yaku,
+        score: tokuten,
       };
       this.reverseDoCalcurate();
-      //this.subtraction();
     },
     isSamePerson() {
       return this.shiharaiNin === this.horasha;
     },
-    makeHoraHistoryInfo(yakuInfo) {
-      const nextNo = this.horaHistories.length + 1;
+    makeHoraHistoryInfo(yakuInfo, tokuten) {
+      const nextNo = this.horaHistories[this.horaHistories.length - 1].no + 1;
       const honba = this.honba === "" ? this.honba : this.honba + "本場";
       const time = this.ba + this.kyoku + "局" + honba;
-      const fromTo = this.horasha + " -> " + this.shiharaiNin;
+      const to = this.horasha;
+      const from = this.shiharaiNin;
+      let yaku = "";
+      if (yakuInfo.length > 0) {
+        yaku = yakuInfo.join(",").slice(0, -1);
+      }
       this.kyokuKekkaInfo = {
-        id: nextNo,
+        no: nextNo,
         time: time,
-        fromTo: fromTo,
-        yaku: yakuInfo.join(","),
+        from: from,
+        to: to,
+        yaku: yaku,
+        score: tokuten,
       };
     },
-    deployTokutenResult(horaInfo) {
+    async deployTokutenResult(horaInfo) {
       const agari =
         this.shiharaiNin === "All" ? MAHJAN_FUNC.TUMO : MAHJAN_FUNC.RON;
       const basuu = this.honba === "" ? 0 : Number(this.honba);
@@ -544,10 +583,6 @@ export default {
         alert(isInvalidHuHan);
         return;
       }
-      if (horaInfo.yakuInfo.length > 0) {
-        const horaHistoryInfo = this.makeHoraHistoryInfo(horaInfo.yakuInfo);
-        this.horaHistories.push(horaHistoryInfo);
-      }
       const tokuten = MAHJAN_FUNC.getTokuten(
         basuu,
         this.reachBou,
@@ -556,6 +591,7 @@ export default {
         oyako,
         agari
       );
+      let totalTokuten = 0;
       this.calcVarLbArr.map((label) => {
         const isHorasha = this.horasha === this.calcuVar[label].name;
         const isTumo = this.shiharaiNin === "All";
@@ -565,15 +601,19 @@ export default {
         if (isHorasha && isTumo && isOya) {
           this.calcuVar[label].plus =
             tokuten.tumoKoShiharai * 3 + tokuten.kyotaku;
+          totalTokuten = this.calcuVar[label].plus;
         } else if (isHorasha && isTumo && !isOya) {
           this.calcuVar[label].plus =
             tokuten.tumoOyaShiharai +
             tokuten.tumoKoShiharai * 2 +
             tokuten.kyotaku;
+          totalTokuten = this.calcuVar[label].plus;
         } else if (isHorasha && !isTumo && isOya) {
           this.calcuVar[label].plus = tokuten.koShiharai + tokuten.kyotaku;
+          totalTokuten = this.calcuVar[label].plus;
         } else if (isHorasha && !isTumo && !isOya) {
           this.calcuVar[label].plus = tokuten.oyaShiharai + tokuten.kyotaku;
+          totalTokuten = this.calcuVar[label].plus;
         } else if (!isHorasha && isTumo && isOya) {
           this.calcuVar[label].minus = tokuten.tumoOyaShiharai;
         } else if (!isHorasha && isTumo && !isOya) {
@@ -584,6 +624,7 @@ export default {
           this.calcuVar[label].minus = tokuten.koShiharai;
         }
       });
+      this.makeHoraHistoryInfo(horaInfo.yakuInfo, totalTokuten);
       this.doCalcurate = !this.doCalcurate;
     },
   },
