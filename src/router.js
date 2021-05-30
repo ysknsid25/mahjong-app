@@ -4,7 +4,24 @@ import { logout, auth } from "../src/plugins/firebase";
 
 Vue.use(VueRouter);
 
-const routes = [
+const getRoutes = () => {
+    const isError = false;
+    if (isError) {
+        return menteRoutes;
+    }
+    return greenRoutes;
+};
+
+const menteRoutes = [
+    {
+        path: "*",
+        name: "Error",
+        component: () => import("./pages/Error.vue"),
+        meta: { isPublic: true },
+    },
+];
+
+const greenRoutes = [
     {
         path: "/Main",
         name: "Main",
@@ -49,6 +66,8 @@ const routes = [
         meta: { isPublic: true },
     },
 ];
+
+const routes = getRoutes();
 
 const router = new VueRouter({
     mode: "history",
