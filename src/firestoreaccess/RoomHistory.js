@@ -239,7 +239,7 @@ export const getRecentlyRank = async (limit) => {
 
 /**
  * 直近10局の成績を返します。
- * @param {和了履歴を取得するためのドキュメントID配列} dosIdInfoArr
+ * @param {Array} dosIdInfoArr 和了履歴を取得するためのドキュメントID配列
  */
 export const getData = async (dosIdInfoArr) => {
     let kyokuCount = 0;
