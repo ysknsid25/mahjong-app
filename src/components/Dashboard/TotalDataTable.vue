@@ -30,8 +30,12 @@
           </thead>
           <tbody>
             <tr>
-              <td class="text-center" v-for="score in scoreList" :key="score">
-                {{ score }}
+              <td
+                class="text-center"
+                v-for="score in totalDataList"
+                :key="score.key"
+              >
+                {{ score.val }}
               </td>
             </tr>
           </tbody>
@@ -44,11 +48,11 @@
 import { recentlyScoreTblHeadList } from "../../constants/label";
 export default {
   name: "TotalDataTable",
+  props: ["totalDataList"],
   data: () => ({
     loading: false,
     title: "直近10局の成績",
     tblHeadList: recentlyScoreTblHeadList,
-    scoreList: ["6390", "22.4%", "11.2%", "10.3%"],
   }),
 };
 </script>

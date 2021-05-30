@@ -169,16 +169,16 @@ export const setHoraInfo = async (docId, horaInfo) => {
 };
 
 /**
- * ユーザーの直近20件の対局履歴を取得します
+ * ユーザーの対局履歴を取得します
  * @param {String} userId
  * @returns
  */
-export const getRoomHistoryArr = async () => {
+export const getRoomHistoryArr = async (limit) => {
     const uid = await getLoginUid();
     let retArr = [];
     await COLLECTION_ROOM_HISTORY.where("uid", "==", uid)
         .orderBy("no", "desc")
-        .limit(20)
+        .limit(limit)
         .get()
         .then((roomHistorySnapShot) => {
             roomHistorySnapShot.forEach((doc) => {
@@ -208,6 +208,150 @@ export const getRoomHistoryArr = async () => {
         });
     return retArr;
 };
+
+/**
+ * 順位を取得する
+ * @param {number} limit
+ * @returns docId: 直近10局分のdocId
+ */
+export const getRecentlyRank = async (limit) => {
+    const roomHistory = await getRoomHistoryArr(limit);
+    let docIdArr = [];
+    const rankArr = roomHistory.reverse().map((roomInfo) => {
+        const userScore = roomInfo.firstScore;
+        const originalArr = [
+            roomInfo.firstScore,
+            roomInfo.secondScore,
+            roomInfo.thirdScore,
+            roomInfo.fourthScore,
+        ];
+        const rankSortedArr = originalArr.sort((n, m) => (n < m ? 1 : -1));
+        docIdArr.push(roomInfo.docId);
+        //console.log(rankSortedArr.indexOf(userScore));
+        return rankSortedArr.indexOf(userScore) + 1;
+    });
+    const retObj = {
+        docIdArr: docIdArr,
+        rankArr: rankArr,
+    };
+    return retObj;
+};
+
+/**
+ * 直近10局の成績を返します。
+ * @param {和了履歴を取得するためのドキュメントID配列} dosIdInfoArr
+ */
+export const getData = async (dosIdInfoArr) => {
+    let kyokuCount = 0;
+    let horaCount = 0;
+    let hojyCount = 0;
+    let reachCount = 0;
+    //TODO: luckeyCountはスタイルを算出するようになったら必要になる
+    //let luckeyCount = 0;
+    let daten = 0;
+
+    let avgDaten = 0;
+    let hojuRitu = 0;
+    let reachRitu = 0;
+    let horaRitu = 0;
+
+    const kiriageDegit = 2;
+    const mark = "You";
+    const REACH = "リーチ";
+
+    for (let i = 0; i < dosIdInfoArr.length; i++) {
+        const horaInfo = await getHoraHistory(dosIdInfoArr[i]);
+        if (horaInfo.length > 0) {
+            for (let n = 0; n < horaInfo.length; n++) {
+                const info = horaInfo[n];
+                kyokuCount++;
+                //放銃
+                if (info.from === mark) {
+                    hojyCount++;
+                }
+                //和了
+                if (info.to === mark) {
+                    horaCount++;
+                    daten += isNaN(info.score) ? 0 : parseInt(info.score);
+                    if (info.yaku.indexOf(REACH) > -1) {
+                        reachCount++;
+                    }
+                }
+                //luckeyCount += getContainKensyoPoint(info.yaku);
+            }
+        }
+    }
+
+    if (daten !== 0 && horaCount !== 0) {
+        avgDaten =
+            Math.floor((daten / horaCount) * Math.pow(10, kiriageDegit)) /
+            Math.pow(10, kiriageDegit);
+    }
+    if (hojyCount !== 0 && kyokuCount !== 0) {
+        hojuRitu =
+            Math.floor((hojyCount / kyokuCount) * Math.pow(10, kiriageDegit)) /
+            Math.pow(10, kiriageDegit);
+    }
+    if (reachCount !== 0 && kyokuCount !== 0) {
+        reachRitu =
+            Math.floor((reachCount / kyokuCount) * Math.pow(10, kiriageDegit)) /
+            Math.pow(10, kiriageDegit);
+    }
+    if (horaCount !== 0 && kyokuCount !== 0) {
+        horaRitu =
+            Math.floor((horaCount / kyokuCount) * Math.pow(10, kiriageDegit)) /
+            Math.pow(10, kiriageDegit);
+    }
+    const recentScore = [
+        { key: 0, val: avgDaten },
+        { key: 1, val: hojuRitu + "%" },
+        { key: 2, val: horaRitu + "%" },
+        { key: 3, val: reachRitu + "%" },
+    ];
+    return recentScore;
+};
+
+//TODO: スタイルを算出するようになったら必要になる
+/**
+ * 上がり役に含まれる懸賞役の数を計算して返す。
+ * @param {string} yakuInfo
+ * @returns
+ */
+/*
+const getContainKensyoPoint = (yakuInfo) => {
+    let kensyoPoint = 0;
+    const IPPATU = "一発";
+    const RINSYAN = "嶺上";
+    const HAITEI = "河底";
+    const DABUREA = "ダブルリーチ";
+    const TYANKAN = "槍槓";
+    const DORA = "ドラ";
+
+    if (yakuInfo === "") {
+        return kensyoPoint;
+    }
+
+    if (yakuInfo.indexOf(IPPATU) > -1) {
+        kensyoPoint++;
+    }
+    if (yakuInfo.indexOf(RINSYAN) > -1) {
+        kensyoPoint++;
+    }
+    if (yakuInfo.indexOf(HAITEI) > -1) {
+        kensyoPoint++;
+    }
+    if (yakuInfo.indexOf(DABUREA) > -1) {
+        kensyoPoint++;
+    }
+    if (yakuInfo.indexOf(TYANKAN) > -1) {
+        kensyoPoint++;
+    }
+    if (yakuInfo.indexOf(DORA) > -1) {
+        kensyoPoint++;
+    }
+    return kensyoPoint;
+};
+*/
 
 /**
  * ログイン中のユーザーIDを取得する

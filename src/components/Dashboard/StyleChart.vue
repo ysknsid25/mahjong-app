@@ -20,7 +20,7 @@
       <v-card-text>
         <RaderChart
           :labels="tblHeadList"
-          :datas="scoreList"
+          :datas="styleList"
           :whatIndicate="hanrei"
         ></RaderChart>
       </v-card-text>
@@ -32,6 +32,7 @@ import RaderChart from "./chart/RaderChart";
 import { styleLabels } from "../../constants/label";
 export default {
   name: "StyleChart",
+  props: ["styleList"],
   components: {
     RaderChart,
   },
@@ -40,7 +41,6 @@ export default {
     title: "直近10局のスタイル",
     hanrei: "能力",
     tblHeadList: styleLabels,
-    scoreList: [70, 70, 70],
   }),
 };
 </script>

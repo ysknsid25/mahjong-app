@@ -1,15 +1,6 @@
 <template>
   <div>
-    <div align="center">
-      <v-progress-circular
-        v-if="loading"
-        :size="50"
-        color="secondary"
-        dark
-        indeterminate
-      ></v-progress-circular>
-    </div>
-    <v-card height="30em" v-if="!loading">
+    <v-card height="30em">
       <v-card-title class="text-h5">
         <v-icon color="secondary" dark class="mr-2">fas fa-trophy</v-icon>
         {{ title }}
@@ -30,6 +21,7 @@ import LineChart from "./chart/LineChart";
 import { rankChartLabels } from "../../constants/label";
 export default {
   name: "RankingChart",
+  props: ["scoreList"],
   components: {
     LineChart,
   },
@@ -38,7 +30,6 @@ export default {
     title: "直近10局の順位",
     hanrei: "順位",
     labels: rankChartLabels,
-    scoreList: [1, 1, 2, 3, 1, 4, 2, 3, 1, 3],
   }),
 };
 </script>
