@@ -19,7 +19,7 @@
                 <v-toolbar-title>対局履歴</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <MakeNewRoomDialog
-                  :maxBattleNo="scores[scores.length - 1]['battleNo']"
+                  :maxBattleNo="scores[0]['battleNo']"
                   @save-from-newroom="saveNewRoom"
                 ></MakeNewRoomDialog>
               </v-toolbar>
@@ -351,7 +351,7 @@ export default {
   created: async function () {
     this.loading = true;
     this.scores = await getRoomHistoryArr(20);
-    //console.log(this.scores);
+    console.log(this.scores);
     this.loading = false;
   },
 
