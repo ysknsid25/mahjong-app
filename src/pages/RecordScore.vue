@@ -350,7 +350,7 @@ export default {
 
   created: async function () {
     this.loading = true;
-    this.scores = await getRoomHistoryArr();
+    this.scores = await getRoomHistoryArr(20);
     //console.log(this.scores);
     this.loading = false;
   },
@@ -436,7 +436,7 @@ export default {
           if (Object.keys(this.kyokuKekkaInfo).length === 0) {
             this.makeHoraHistoryInfo([], totalTokuten);
           }
-          console.log(this.kyokuKekkaInfo);
+          //console.log(this.kyokuKekkaInfo);
           const sucDocId = await setHoraInfo(this.docId, this.kyokuKekkaInfo);
           this.kyokuKekkaInfo.docId = sucDocId;
           this.horaHistories.push(this.kyokuKekkaInfo);
@@ -520,7 +520,7 @@ export default {
       const bappuShiharai = retTenpaiArr.filter(
         (tenpaiInfo) => tenpaiInfo["minusVal"] > 0
       );
-      const nextNo = this.horaHistories[this.horaHistories.length - 1].no + 1;
+      const nextNo = this.getNextNo();
       const honba = this.honba === "" ? this.honba : this.honba + "本場";
       const time = this.ba + this.kyoku + "局" + honba;
       const tokuten = 3000 / bappuUketori.length;
@@ -550,7 +550,7 @@ export default {
       return this.shiharaiNin === this.horasha;
     },
     makeHoraHistoryInfo(yakuInfo, tokuten) {
-      const nextNo = this.horaHistories[this.horaHistories.length - 1].no + 1;
+      const nextNo = this.getNextNo();
       const honba = this.honba === "" ? this.honba : this.honba + "本場";
       const time = this.ba + this.kyoku + "局" + honba;
       const to = this.horasha;
@@ -567,6 +567,12 @@ export default {
         yaku: yaku,
         score: tokuten,
       };
+    },
+    getNextNo() {
+      if (this.horaHistories.length === 0) {
+        return 1;
+      }
+      return this.horaHistories[this.horaHistories.length - 1].no + 1;
     },
     async deployTokutenResult(horaInfo) {
       const agari =
