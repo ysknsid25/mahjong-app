@@ -563,7 +563,6 @@ export default {
           yaku = yaku.slice(0, -1);
         }
       }
-      alert(yaku);
       this.kyokuKekkaInfo = {
         no: nextNo,
         time: time,
