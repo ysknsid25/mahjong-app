@@ -26,7 +26,7 @@
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Ma<font color="#B71C1C">hja</font>nager</v-toolbar-title>
       <v-spacer></v-spacer>
-      <Subscriber></Subscriber>
+      <Subscriber v-if="isAdmin"></Subscriber>
       <Notify></Notify>
     </v-app-bar>
   </div>
@@ -35,6 +35,7 @@
 import { menulist } from "../../constants/menulist";
 import Subscriber from "../Subscriber";
 import Notify from "../Notify";
+import { auth, RAMEN } from "../../plugins/firebase";
 
 export default {
   name: "NavigationDrawer",
@@ -47,6 +48,19 @@ export default {
   data: () => ({
     drawer: false,
     nav_lists: menulist,
+    isAdmin: false,
   }),
+
+  created: async function () {
+    let isAdmin = false;
+    await auth.onAuthStateChanged(function (user) {
+      if (user) {
+        isAdmin = user.uid == RAMEN;
+      } else {
+        isAdmin = false;
+      }
+    });
+    this.isAdmin = isAdmin;
+  },
 };
 </script>

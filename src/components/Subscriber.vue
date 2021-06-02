@@ -1,15 +1,7 @@
 <template>
   <v-dialog v-model="dialog" width="500">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn
-        color="secondary"
-        dark
-        icon
-        :v-if="isAdmin"
-        class="mr-2"
-        v-bind="attrs"
-        v-on="on"
-      >
+      <v-btn color="secondary" dark icon class="mr-2" v-bind="attrs" v-on="on">
         <v-icon>far fa-envelope</v-icon>
       </v-btn>
     </template>
@@ -71,7 +63,6 @@
 import { infoTypeKbn } from "../constants/kbn";
 import { createReleaseInfo } from "../firestoreaccess/ReleaseHistory";
 import { getTimeStamp } from "../constants/cmnfunc";
-import { auth, RAMEN } from "../plugins/firebase";
 export default {
   name: "Subscriber",
   data: () => ({
@@ -81,19 +72,7 @@ export default {
     infoType: "",
     title: "",
     url: "",
-    isAdmin: false,
   }),
-  mounted: async function () {
-    let isAdmin = false;
-    await auth.onAuthStateChanged(function (user) {
-      if (user) {
-        isAdmin = user.uid == RAMEN;
-      } else {
-        isAdmin = false;
-      }
-    });
-    this.isAdmin = isAdmin;
-  },
   methods: {
     async doUpdateArticle() {
       this.sending = true;
