@@ -34,7 +34,7 @@
                   <strong>{{ notify.infoType }}</strong> @{{ notify.postDate }}
                 </div>
                 <div>
-                  <v-btn text href="notify.articleUrl"
+                  <v-btn text :href="notify.articleUrl"
                     ><font size="2">{{ notify.title }}</font></v-btn
                   >
                 </div>
