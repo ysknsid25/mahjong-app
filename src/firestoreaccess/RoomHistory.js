@@ -15,13 +15,13 @@ export const createRoomHistory = async (roomInfo) => {
         ymd: roomInfo.ymd,
         no: roomInfo.battleNo,
         firstName: roomInfo.firstName,
-        firstScore: roomInfo.firstScore,
+        firstScore: parseInt(roomInfo.firstScore),
         secondName: roomInfo.secondName,
-        secondScore: roomInfo.secondScore,
+        secondScore: parseInt(roomInfo.secondScore),
         thirdName: roomInfo.thirdName,
-        thirdScore: roomInfo.thirdScore,
+        thirdScore: parseInt(roomInfo.thirdScore),
         fourthName: roomInfo.fourthName,
-        fourthScore: roomInfo.fourthScore,
+        fourthScore: parseInt(roomInfo.fourthScore),
     };
     const docId = COLLECTION_ROOM_HISTORY.doc().id;
     const eventName = "RoomHistory Created";
@@ -33,20 +33,53 @@ export const createRoomHistory = async (roomInfo) => {
 };
 
 /**
+ * 最終対局番号を返します
+ * @param {number} scoresLength
+ * @param {string} uid
+ * @returns
+ */
+export const getMaxBattleNo = async (scoresLength) => {
+    if (scoresLength === 0) {
+        return 1;
+    }
+    const uid = await getLoginUid();
+    let maxNo = 0;
+    await COLLECTION_ROOM_HISTORY.where("uid", "==", uid)
+        .orderBy("no", "desc")
+        .limit(1)
+        .get()
+        .then((roomHistorySnapShot) => {
+            roomHistorySnapShot.forEach((doc) => {
+                const data = doc.data();
+                maxNo = data.no + 1;
+            });
+        })
+        .catch((error) => {
+            anl.logEvent("errorInfo", {
+                function: "getRoomHistoryArr",
+                msg: error,
+            });
+        });
+    return maxNo;
+};
+
+/**
  * 対局履歴を更新する
  * @param {string} docId
  * @param {Object} scoreInfo
  */
 export const updateRoomHistory = async (docId, scoreInfo) => {
+    const uid = await getLoginUid();
     const writeVal = {
+        uid: uid,
         firstName: scoreInfo.first.name,
-        firstScore: scoreInfo.first.score,
+        firstScore: parseInt(scoreInfo.first.score),
         secondName: scoreInfo.second.name,
-        secondScore: scoreInfo.second.score,
+        secondScore: parseInt(scoreInfo.second.score),
         thirdName: scoreInfo.third.name,
-        thirdScore: scoreInfo.third.score,
+        thirdScore: parseInt(scoreInfo.third.score),
         fourthName: scoreInfo.fourth.name,
-        fourthScore: scoreInfo.fourth.score,
+        fourthScore: parseInt(scoreInfo.fourth.score),
     };
     await COLLECTION_ROOM_HISTORY.doc(docId)
         .update(writeVal)

@@ -121,7 +121,6 @@ import * as MAHJAN_FUNC from "../constants/mahjong";
 
 export default {
   name: "MakeNewRoomDialog",
-  props: ["maxBattleNo"],
   data: () => ({
     newRoomDialog: false,
     valid: false,
@@ -177,7 +176,6 @@ export default {
 
     save() {
       const retVal = {
-        battleNo: this.maxBattleNo + 1,
         ymd: this.date.replaceAll("-", "/"),
         firstName: this.firstName,
         firstScore: this.selectedMotiten,
