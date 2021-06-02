@@ -19,7 +19,6 @@
                 <v-toolbar-title>対局履歴</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <MakeNewRoomDialog
-                  :maxBattleNo="scores[0]['battleNo']"
                   @save-from-newroom="saveNewRoom"
                 ></MakeNewRoomDialog>
               </v-toolbar>
@@ -36,7 +35,6 @@
           </v-data-table>
           <div align="center" v-if="!scores.length > 0">
             <MakeNewRoomDialog
-              :maxBattleNo="0"
               @save-from-newroom="saveNewRoom"
               class="ml-2"
             ></MakeNewRoomDialog>
@@ -253,6 +251,7 @@ import HoraHistoy from "../components/taikyokuroom/HoraHistory";
 import { createActionHistory } from "../firestoreaccess/ActionHistory";
 import {
   createRoomHistory,
+  getMaxBattleNo,
   getRoomHistoryArr,
   deleteRoomHistory,
   updateRoomHistory,
@@ -358,6 +357,8 @@ export default {
   methods: {
     async saveNewRoom(val) {
       this.loading = true;
+      const maxBattleNo = await getMaxBattleNo(this.scores.length);
+      val.battleNo = maxBattleNo;
       const docId = await createRoomHistory(val);
       createActionHistory("Make New Room", "新規対局記録を作成しました。");
       if (docId === "") {
@@ -557,8 +558,12 @@ export default {
       const from = this.shiharaiNin;
       let yaku = "";
       if (yakuInfo.length > 0) {
-        yaku = yakuInfo.join(",").slice(0, -1);
+        yaku = yakuInfo.join(",");
+        if (yaku.indexOf("ドラ") === -1) {
+          yaku = yaku.slice(0, -1);
+        }
       }
+      alert(yaku);
       this.kyokuKekkaInfo = {
         no: nextNo,
         time: time,
