@@ -603,6 +603,8 @@ export default {
       );
       let totalTokuten = 0;
       this.calcVarLbArr.map((label) => {
+        this.calcuVar[label].plus = 0;
+        this.calcuVar[label].minus = 0;
         const isHorasha = this.horasha === this.calcuVar[label].name;
         const isTumo = this.shiharaiNin === "All";
         const isOya = this.calcuVar[label].name === this.oya;
@@ -631,7 +633,8 @@ export default {
         } else if (!isHorasha && !isTumo && isOya && isHojusya) {
           this.calcuVar[label].minus = tokuten.oyaShiharai;
         } else if (!isHorasha && !isTumo && !isOya && isHojusya) {
-          this.calcuVar[label].minus = tokuten.koShiharai;
+          //ロンの時、和了者も支払人も子という状況があるが、その場合は親の得点に精算額が入ってる
+          this.calcuVar[label].minus = tokuten.oyaShiharai;
         }
       });
       this.makeHoraHistoryInfo(horaInfo.yakuInfo, totalTokuten);
