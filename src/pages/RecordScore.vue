@@ -607,7 +607,8 @@ export default {
         this.calcuVar[label].minus = 0;
         const isHorasha = this.horasha === this.calcuVar[label].name;
         const isTumo = this.shiharaiNin === "All";
-        const isOya = this.calcuVar[label].name === this.oya;
+        const isOya = this.calcuVar[label].name === this.oya; //主語は自分
+        const isOyaHorasha = this.horasha === this.oya;
         const isHojusya = this.shiharaiNin === this.calcuVar[label].name;
         //自摸は上がった人以外全員が支払人だけど、ロンは特定の１人だけが支払人
         if (isHorasha && isTumo && isOya) {
@@ -634,7 +635,11 @@ export default {
           this.calcuVar[label].minus = tokuten.oyaShiharai;
         } else if (!isHorasha && !isTumo && !isOya && isHojusya) {
           //ロンの時、和了者も支払人も子という状況があるが、その場合は親の得点に精算額が入ってる
-          this.calcuVar[label].minus = tokuten.oyaShiharai;
+          if (isOyaHorasha) {
+            this.calcuVar[label].minus = tokuten.koShiharai;
+          } else {
+            this.calcuVar[label].minus = tokuten.oyaShiharai;
+          }
         }
       });
       this.makeHoraHistoryInfo(horaInfo.yakuInfo, totalTokuten);
