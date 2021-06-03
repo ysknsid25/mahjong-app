@@ -109,6 +109,19 @@ export default {
           ? ""
           : hanInfo["selectedYau"];
       this.setHanVal(hanVal);
+      if (this.horaYaku !== "") {
+        const isPinfu =
+          typeof this.horaYaku.find((yaku) => yaku === "平和") !== "undefined";
+        const isTitoi =
+          typeof this.horaYaku.find((yaku) => yaku === "七対子") !==
+          "undefined";
+        if (isPinfu) {
+          this.hu = 20;
+        }
+        if (isTitoi) {
+          this.hu = 25;
+        }
+      }
       this.hanKeisanDialog = false;
     },
 
