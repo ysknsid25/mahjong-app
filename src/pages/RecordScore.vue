@@ -437,10 +437,11 @@ export default {
           if (Object.keys(this.kyokuKekkaInfo).length === 0) {
             this.makeHoraHistoryInfo([], totalTokuten);
           }
-          //console.log(this.kyokuKekkaInfo);
-          const sucDocId = await setHoraInfo(this.docId, this.kyokuKekkaInfo);
-          this.kyokuKekkaInfo.docId = sucDocId;
-          this.horaHistories.push(this.kyokuKekkaInfo);
+          if (this.kyokuKekkaInfo !== "" && totalTokuten > 0) {
+            const sucDocId = await setHoraInfo(this.docId, this.kyokuKekkaInfo);
+            this.kyokuKekkaInfo.docId = sucDocId;
+            this.horaHistories.push(this.kyokuKekkaInfo);
+          }
           this.kyokuKekkaInfo = {};
           await updateRoomHistory(this.docId, this.calcuVar);
           createActionHistory("Saved Room", "対局記録を保存しました。");
@@ -524,7 +525,10 @@ export default {
       const nextNo = this.getNextNo();
       const honba = this.honba === "" ? this.honba : this.honba + "本場";
       const time = this.ba + this.kyoku + "局" + honba;
-      const tokuten = 3000 / bappuUketori.length;
+      let tokuten = 0;
+      if (0 < bappuUketori.length && bappuUketori.length < 4) {
+        tokuten = 3000 / bappuUketori.length;
+      }
       let from = "";
       let to = "";
       let yaku = "流局";
