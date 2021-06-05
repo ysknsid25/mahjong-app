@@ -321,10 +321,10 @@ export const getData = async (dosIdInfoArr) => {
     let reachRitu = 0;
     let horaRitu = 0;
 
-    const kiriageDegit = 2;
     const mark = "You";
     const REACH = "リーチ";
     const RYUOYOKU = "流局";
+    const kirisuteDegit = 1000;
 
     for (let i = 0; i < dosIdInfoArr.length; i++) {
         const horaInfo = await getHoraHistory(dosIdInfoArr[i]);
@@ -351,35 +351,35 @@ export const getData = async (dosIdInfoArr) => {
             }
         }
     }
-
     if (daten !== 0 && horaCount !== 0) {
-        avgDaten =
-            Math.floor((daten / horaCount) * Math.pow(10, kiriageDegit)) /
-            Math.pow(10, kiriageDegit);
+        avgDaten = orgFloor(daten / horaCount, 1, 1);
     }
     if (hojyCount !== 0 && kyokuCount !== 0) {
-        hojuRitu =
-            Math.floor((hojyCount / kyokuCount) * Math.pow(10, kiriageDegit)) /
-            Math.pow(10, kiriageDegit);
+        hojuRitu = orgFloor(hojyCount / kyokuCount, kirisuteDegit);
     }
     if (reachCount !== 0 && kyokuCount !== 0) {
-        reachRitu =
-            Math.floor((reachCount / kyokuCount) * Math.pow(10, kiriageDegit)) /
-            Math.pow(10, kiriageDegit);
+        reachRitu = orgFloor(reachCount / kyokuCount, kirisuteDegit);
     }
     if (horaCount !== 0 && kyokuCount !== 0) {
-        horaRitu =
-            Math.floor((horaCount / kyokuCount) * Math.pow(10, kiriageDegit)) /
-            Math.pow(10, kiriageDegit);
+        horaRitu = orgFloor(horaCount / kyokuCount, kirisuteDegit);
     }
     const recentScore = [
         { key: 0, val: avgDaten },
-        { key: 1, val: hojuRitu + "%" },
-        { key: 2, val: horaRitu + "%" },
+        { key: 1, val: horaRitu + "%" },
+        { key: 2, val: hojuRitu + "%" },
         { key: 3, val: reachRitu + "%" },
     ];
     return recentScore;
 };
+
+/**
+ * 任意の桁で切り捨てする関数
+ * @param {number} value 切り捨てする数値
+ * @param {number} base どの桁で切り捨てするか
+ * @return {number} 切り捨てした値
+ */
+const orgFloor = (value, base, percent = 100) =>
+    Math.floor(value * base * percent) / base;
 
 //TODO: スタイルを算出するようになったら必要になる
 /**
