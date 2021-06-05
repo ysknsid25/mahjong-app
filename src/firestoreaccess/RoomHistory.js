@@ -180,6 +180,8 @@ export const deleteHoraInfo = (docId, subDocId) => {
  * @returns string subDocId
  */
 export const setHoraInfo = async (docId, horaInfo) => {
+    const maxHoraNo = await getMaxHoraHistoryNo(docId);
+    horaInfo.no = maxHoraNo;
     const SUB_COLLECTION_HORA_HISTORY = COLLECTION_ROOM_HISTORY.doc(
         docId
     ).collection("horaHistory");
@@ -199,6 +201,37 @@ export const setHoraInfo = async (docId, horaInfo) => {
             subDocId = "";
         });
     return subDocId;
+};
+
+/**
+ * 最新の和了履歴番号を取得する
+ * @param {string} docId
+ * @returns
+ */
+export const getMaxHoraHistoryNo = async (docId) => {
+    let retArr = [];
+    const SUB_COLLECTION_HORA_HISTORY = COLLECTION_ROOM_HISTORY.doc(
+        docId
+    ).collection("horaHistory");
+    await SUB_COLLECTION_HORA_HISTORY.orderBy("no", "desc")
+        .limit(1)
+        .get()
+        .then((horaHistorySnapShot) => {
+            horaHistorySnapShot.forEach((doc) => {
+                const data = doc.data();
+                retArr.push(data.no);
+            });
+        })
+        .catch((error) => {
+            anl.logEvent("errorInfo", {
+                function: "getMaxHoraHistoryNo",
+                msg: error,
+            });
+        });
+    if (retArr.length === 1) {
+        return retArr[0] + 1;
+    }
+    return 1;
 };
 
 /**
@@ -291,6 +324,7 @@ export const getData = async (dosIdInfoArr) => {
     const kiriageDegit = 2;
     const mark = "You";
     const REACH = "リーチ";
+    const RYUOYOKU = "流局";
 
     for (let i = 0; i < dosIdInfoArr.length; i++) {
         const horaInfo = await getHoraHistory(dosIdInfoArr[i]);
@@ -298,16 +332,19 @@ export const getData = async (dosIdInfoArr) => {
             for (let n = 0; n < horaInfo.length; n++) {
                 const info = horaInfo[n];
                 kyokuCount++;
-                //放銃
-                if (info.from === mark) {
-                    hojyCount++;
-                }
-                //和了
-                if (info.to === mark) {
-                    horaCount++;
-                    daten += isNaN(info.score) ? 0 : parseInt(info.score);
-                    if (info.yaku.indexOf(REACH) > -1) {
-                        reachCount++;
+                //ノーテン罰符は放銃・和了のカウント外
+                if (info.from !== RYUOYOKU) {
+                    //放銃
+                    if (info.from === mark) {
+                        hojyCount++;
+                    }
+                    //和了
+                    if (info.to === mark) {
+                        horaCount++;
+                        daten += isNaN(info.score) ? 0 : parseInt(info.score);
+                        if (info.yaku.indexOf(REACH) > -1) {
+                            reachCount++;
+                        }
                     }
                 }
                 //luckeyCount += getContainKensyoPoint(info.yaku);

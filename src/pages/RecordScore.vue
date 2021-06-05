@@ -350,7 +350,6 @@ export default {
   created: async function () {
     this.loading = true;
     this.scores = await getRoomHistoryArr(20);
-    console.log(this.scores);
     this.loading = false;
   },
 
@@ -434,13 +433,20 @@ export default {
           const totalTokuten = this.subtraction();
           this.reachBou = 0;
           //直接得点を入力された場合は和了情報が作成されてないから、このタイミングで作る
-          if (Object.keys(this.kyokuKekkaInfo).length === 0) {
+          if (
+            Object.keys(this.kyokuKekkaInfo).length === 0 ||
+            this.kyokuKekkaInfo === ""
+          ) {
             this.makeHoraHistoryInfo([], totalTokuten);
           }
-          if (this.kyokuKekkaInfo !== "" && totalTokuten > 0) {
+          if (this.kyokuKekkaInfo) {
             const sucDocId = await setHoraInfo(this.docId, this.kyokuKekkaInfo);
             this.kyokuKekkaInfo.docId = sucDocId;
             this.horaHistories.push(this.kyokuKekkaInfo);
+            this.horaHistories = this.horaHistories.sort((a, b) =>
+              a.no > b.no ? -1 : 1
+            );
+            console.log(this.horaHistories);
           }
           this.kyokuKekkaInfo = {};
           await updateRoomHistory(this.docId, this.calcuVar);
@@ -465,6 +471,7 @@ export default {
     },
     subtraction() {
       let totalTokuten = 0;
+      let plusFound = false;
       this.calcVarLbArr.map((label) => {
         this.calcuVar[label]["score"] =
           Number(this.calcuVar[label]["score"]) +
@@ -474,7 +481,11 @@ export default {
               this.calcuVar[label]["minus"]
             )
           );
-        if (this.calcuVar[label]["name"] === this.horasha) {
+        //麻雀は基本的に一局のなかで和了できるのは一人だけど、
+        //聴牌の場合は複数人がプラスになることがありえる
+        //聴牌の場合は一人あたりの獲得素点を和了履歴に記録する
+        if (!plusFound && this.calcuVar[label]["plus"] > 0) {
+          plusFound = true;
           totalTokuten = this.calcuVar[label]["plus"];
         }
         this.calcuVar[label]["plus"] = 0;
@@ -522,7 +533,6 @@ export default {
       const bappuShiharai = retTenpaiArr.filter(
         (tenpaiInfo) => tenpaiInfo["minusVal"] > 0
       );
-      const nextNo = this.getNextNo();
       const honba = this.honba === "" ? this.honba : this.honba + "本場";
       const time = this.ba + this.kyoku + "局" + honba;
       let tokuten = 0;
@@ -542,7 +552,6 @@ export default {
         yaku = "ノーテン罰符";
       }
       this.kyokuKekkaInfo = {
-        no: nextNo,
         time: time,
         from: from,
         to: to,
@@ -555,32 +564,28 @@ export default {
       return this.shiharaiNin === this.horasha;
     },
     makeHoraHistoryInfo(yakuInfo, tokuten) {
-      const nextNo = this.getNextNo();
       const honba = this.honba === "" ? this.honba : this.honba + "本場";
       const time = this.ba + this.kyoku + "局" + honba;
-      const to = this.horasha;
-      const from = this.shiharaiNin;
+      let to = this.horasha;
+      let from = this.shiharaiNin;
       let yaku = "";
       if (yakuInfo.length > 0) {
         yaku = yakuInfo.join(",");
         if (yaku.indexOf("ドラ") === -1) {
           yaku = yaku.slice(0, -1);
         }
+      } else if (tokuten === 0) {
+        yaku = "流局";
+        to = "";
+        from = "";
       }
       this.kyokuKekkaInfo = {
-        no: nextNo,
         time: time,
         from: from,
         to: to,
         yaku: yaku,
         score: tokuten,
       };
-    },
-    getNextNo() {
-      if (this.horaHistories.length === 0) {
-        return 1;
-      }
-      return this.horaHistories[this.horaHistories.length - 1].no + 1;
     },
     async deployTokutenResult(horaInfo) {
       const agari =
