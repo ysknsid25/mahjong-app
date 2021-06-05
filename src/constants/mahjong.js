@@ -14,7 +14,7 @@ export const AGARI_VALUES = [
     { label: "ロン・包", value: RON },
 ];
 
-export const HU_VALUES = [0, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110];
+export const HU_VALUES = [20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110];
 
 export const HAN_VALUES = [
     { label: "1", value: "1" },
