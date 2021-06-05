@@ -27,6 +27,21 @@
           <v-row justify="center">
             <v-col>
               <v-select
+                v-model="hu"
+                :items="huItems"
+                label="符"
+                @change="changeHu"
+              />
+            </v-col>
+            <v-col>
+              <v-btn tile outlined color="indigo" dark @click="calcuHu()"
+                >符計算</v-btn
+              >
+            </v-col>
+          </v-row>
+          <v-row justify="center">
+            <v-col>
+              <v-select
                 v-model="han"
                 item-text="label"
                 item-value="value"
@@ -38,21 +53,6 @@
             <v-col>
               <v-btn tile outlined color="indigo" dark @click="calcuHan()"
                 >役選択</v-btn
-              >
-            </v-col>
-          </v-row>
-          <v-row justify="center">
-            <v-col>
-              <v-select
-                v-model="hu"
-                :items="huItems"
-                label="符"
-                @change="changeHu"
-              />
-            </v-col>
-            <v-col>
-              <v-btn tile outlined color="indigo" dark @click="calcuHu()"
-                >符計算</v-btn
               >
             </v-col>
           </v-row>
