@@ -172,7 +172,7 @@ export default {
         hu: new String(this.hu),
         yakuInfo: this.horaYaku,
       };
-      this.horaYaku = "";
+      //this.horaYaku = "";
       this.$emit("back-tokuten-top-seisan", retVal);
     },
     backTokutenTop() {
