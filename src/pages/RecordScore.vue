@@ -446,7 +446,7 @@ export default {
             this.horaHistories = this.horaHistories.sort((a, b) =>
               a.no > b.no ? -1 : 1
             );
-            console.log(this.horaHistories);
+            //console.log(this.horaHistories);
           }
           this.kyokuKekkaInfo = {};
           await updateRoomHistory(this.docId, this.calcuVar);
