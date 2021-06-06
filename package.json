@@ -6,7 +6,9 @@
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
         "lint": "vue-cli-service lint",
-        "deploy": "vue-cli-service build && firebase deploy"
+        "staging": "vue-cli-service build && firebase use mahjong-app-65bc3 && firebase deploy",
+        "deploy": "vue-cli-service build && firebase use mahjanager && firebase deploy",
+        "makefirestoreindex": "firebase use mahjong-app-65bc3 && firebase firestore:indexes > firestore.indexes.json"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.15.3",
